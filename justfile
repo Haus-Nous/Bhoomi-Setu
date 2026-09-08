@@ -30,6 +30,18 @@ build:
 agents-check:
     sh scripts/check-agents-lines.sh
 
+eval:
+    @echo "ERROR: just eval is unavailable until milestone M1 implements the evaluation harness." >&2
+    @exit 1
+
+eval-fast:
+    @echo "ERROR: just eval-fast is unavailable until milestone M1 implements the evaluation harness." >&2
+    @exit 1
+
+demo:
+    @echo "ERROR: just demo is unavailable until milestone M9 implements the fixture-only demo." >&2
+    @exit 1
+
 check: format-check lint typecheck build
 
 test:
@@ -48,4 +60,3 @@ infra-status:
 
 infra-logs:
     docker compose logs --follow
-
