@@ -39,6 +39,8 @@ This file is a compact table of contents, not a replacement for them.
 - Use `just` as the repository command surface.
 - Keep `packages/domain-types` free of runtime dependencies and I/O.
 - Never place real personal or land-record data in fixtures.
+- Never assert ownership, implement transfer/adjudication/self-certification, or gate on identity seeding.
+- Preserve state-specific rules, provenance, uncertainty, margin notes, exact shares, and parcel lineage.
 - Update the relevant durable-memory file when its subject changes.
 - Run `just setup && just check && just test` before handoff.
 
@@ -47,4 +49,3 @@ This file is a compact table of contents, not a replacement for them.
 Keep this file at or below 120 physical lines.
 Put detailed guidance in the appropriate durable-memory file and link it here.
 CI enforces the limit through `just agents-check`.
-
