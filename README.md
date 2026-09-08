@@ -18,7 +18,7 @@ intentionally, to show the project's actual development timeline.
 ## Demo
 
 
-Open the verified public demo at [bhoomi-check.vercel.app](https://bhoomi-check.vercel.app). For local development, run `npm run dev` and open [http://localhost:3000](http://localhost:3000).
+Open the verified public demo at [bhoomi-setu-xi.vercel.app](https://bhoomi-setu-xi.vercel.app). For local development, run `npm run dev` and open [http://localhost:3000](http://localhost:3000).
 
 Start with [`demo-family-001`](http://localhost:3000/cases/demo-family-001), the guided hero case. The recommended flow is:
 
@@ -84,6 +84,20 @@ Open [`/cases/demo-family-002`](http://localhost:3000/cases/demo-family-002) to 
 
 In plain language: the historical synthetic record differs from both the survey and mapped boundary; the survey and mapped geometry are closely aligned. Bhoomi Setu never converts that pattern into an ownership, title, inheritance, or legal conclusion.
 
+## Screenshots
+
+![Landing page](docs/screenshots/01-landing.png)
+*The hero case's numbers, shown up front: historical 1.20 acre, survey 1.02 acre, mapped 1.0243 acre.*
+
+![Case dashboard](docs/screenshots/02-dashboard.png)
+*A family's records and what needs attention, in one page.*
+
+![Verification with anchoring](docs/screenshots/03-verification.png)
+*A possible area mismatch, flagged — with the option to anchor the signed result.*
+
+![Public verifier](docs/screenshots/04-public-verify-match.png)
+*No login required — anyone can confirm a signed record's integrity.*
+
 ## Key capabilities
 
 - Reconstruct a synthetic case around documents, family context, parcels, and a synthetic Khanapuri Parcha.
@@ -122,18 +136,14 @@ In plain language: the historical synthetic record differs from both the survey 
 
 See [architecture notes](docs/ARCHITECTURE.md), [API documentation](docs/API.md), and [data model](docs/DATA_MODEL.md).
 
-## Screenshots
-
-Clean image assets are intentionally not fabricated in this repository. See [the screenshot plan](docs/SCREENSHOT_PLAN.md) for six exact routes, viewport sizes, framing notes, and safe capture requirements. Parcel Intelligence is the strongest technical screenshot.
-
 ## Synthetic evaluation proof
 
 The checked-in deterministic evaluation suite reports:
 
 | Measure | Result |
 | --- | ---: |
-| Test files | 41 |
-| Tests | 137 |
+| Test files | 43 |
+| Tests | 152 |
 | Synthetic cases | 12 |
 | Verification outcomes | 24 / 24 correct |
 | False positives / false negatives | 0 / 0 |

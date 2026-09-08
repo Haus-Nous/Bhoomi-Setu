@@ -32,6 +32,7 @@
     "@eslint/eslintrc": "^3.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
+    "playwright": "^1.63.0",
     "vitest": "^3.0.0"
   }
 }
