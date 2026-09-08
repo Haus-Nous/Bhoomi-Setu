@@ -1,8 +1,8 @@
-# BhoomiCheck architecture
+# Bhoomi Setu architecture
 
 ## Judge-facing static overview
 
-![BhoomiCheck synthetic-demo architecture and data flow](architecture-diagram.svg)
+![Bhoomi Setu synthetic-demo architecture and data flow](architecture-diagram.svg)
 
 The static diagram is a repository-renderable overview for the submission package. It deliberately labels official-record and Earth Observation providers as synthetic boundaries and keeps contextual information separate from deterministic verification truth.
 

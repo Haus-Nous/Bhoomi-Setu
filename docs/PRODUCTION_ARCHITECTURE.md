@@ -1,4 +1,4 @@
-# BhoomiCheck Production Architecture
+# Bhoomi Setu Production Architecture
 
 ## Implemented prototype architecture
 

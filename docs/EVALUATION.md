@@ -1,4 +1,4 @@
-# BhoomiCheck Evaluation
+# Bhoomi Setu Evaluation
 
 ## Purpose
 

@@ -1,4 +1,4 @@
-# BhoomiCheck Safety, Privacy, and Prototype Boundaries
+# Bhoomi Setu Safety, Privacy, and Prototype Boundaries
 
 ## Hard boundaries
 

@@ -36,7 +36,7 @@ OfficialRecordService
   → BiharGovernmentRecordProvider (future)
 ```
 
-It is not implemented. BhoomiCheck currently has no live Bihar integration, government URL, scraping client, undocumented API use, credential flow, OTP flow, or submission path.
+It is not implemented. Bhoomi Setu currently has no live Bihar integration, government URL, scraping client, undocumented API use, credential flow, OTP flow, or submission path.
 
 Before any future provider could be considered, it would require:
 

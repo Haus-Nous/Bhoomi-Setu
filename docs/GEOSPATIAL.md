@@ -2,7 +2,7 @@
 
 ## Implemented in Phase 16
 
-BhoomiCheck persists one clearly fictional GeoJSON `Polygon` for each seeded demo case. `ParcelGeometry` records the case/parcel association, immutable demo identifiers, `EPSG:4326`, source reference, source type, provenance, quality, and timestamps. Only `SYNTHETIC` geometry is populated.
+Bhoomi Setu persists one clearly fictional GeoJSON `Polygon` for each seeded demo case. `ParcelGeometry` records the case/parcel association, immutable demo identifiers, `EPSG:4326`, source reference, source type, provenance, quality, and timestamps. Only `SYNTHETIC` geometry is populated.
 
 `GeospatialService` accepts only closed, bounded GeoJSON `Polygon` or `MultiPolygon` values under a payload limit. It rejects empty, unclosed, malformed, non-finite, out-of-range, or unsupported geometry. It calculates square metres, hectares, and acres deterministically with Turf and labels every result `CALCULATED_FROM_GEOMETRY`.
 
@@ -10,15 +10,15 @@ BhoomiCheck persists one clearly fictional GeoJSON `Polygon` for each seeded dem
 
 ## Phase 17 three-source comparison
 
-Parcel Intelligence separately compares three synthetic area sources: a historical/document record, a survey/Parcha record, and a Turf calculation from persisted synthetic GeoJSON. Values are normalized to acres only for supported finite positive units (`acre`, `acres`, `hectare`, `hectares`, `square metre`, `square metres`, and `m²`). Missing, malformed, non-finite, zero, negative, or unsupported values remain unavailable; BhoomiCheck does not guess.
+Parcel Intelligence separately compares three synthetic area sources: a historical/document record, a survey/Parcha record, and a Turf calculation from persisted synthetic GeoJSON. Values are normalized to acres only for supported finite positive units (`acre`, `acres`, `hectare`, `hectares`, `square metre`, `square metres`, and `m²`). Missing, malformed, non-finite, zero, negative, or unsupported values remain unavailable; Bhoomi Setu does not guess.
 
-For each of the three pairs, BhoomiCheck calculates `|A - B| / max(A, B) × 100`, making the percentage deterministic and independent of source order. The explicit `BHOOMICHECK_DEMO_AREA_V1` policy classifies ≤2% as `CONSISTENT`, >2% through ≤5% as `REVIEW`, and >5% as `POTENTIAL_ISSUE`; unavailable inputs are `INSUFFICIENT_EVIDENCE`. These are demo tolerances only, not legal, cadastral, statutory, or government tolerances. These derived comparison results remain separate from Phase 5 `VerificationResult` data and are never ownership conclusions.
+For each of the three pairs, Bhoomi Setu calculates `|A - B| / max(A, B) × 100`, making the percentage deterministic and independent of source order. The explicit `BHOOMICHECK_DEMO_AREA_V1` policy classifies ≤2% as `CONSISTENT`, >2% through ≤5% as `REVIEW`, and >5% as `POTENTIAL_ISSUE`; unavailable inputs are `INSUFFICIENT_EVIDENCE`. These are demo tolerances only, not legal, cadastral, statutory, or government tolerances. These derived comparison results remain separate from Phase 5 `VerificationResult` data and are never ownership conclusions.
 
 ## Persistence and isolation
 
 `parcel_geometries` stores portable text GeoJSON in both SQLite and Supabase Postgres. No PostGIS runtime is required. Geometry is resolved by both `case_id` and `parcel_id`; no client-supplied geometry ID is accepted. Seed creation and demo reset are idempotent, and new synthetic cases intentionally have no geometry.
 
-The Phase 16A hero seed (`demo-family-001-geometry`) is versioned through its source reference (`BHOOMICHECK-SYNTHETIC-GEO-001-V2`). At initialization, BhoomiCheck replaces only the exact known Phase 16 polygon JSON for that exact synthetic geometry id, case, parcel, and source type. This safely corrects an existing demo row without changing user-created geometry, the control demo, or any non-matching row. Repeated initialization makes no further change.
+The Phase 16A hero seed (`demo-family-001-geometry`) is versioned through its source reference (`BHOOMICHECK-SYNTHETIC-GEO-001-V2`). At initialization, Bhoomi Setu replaces only the exact known Phase 16 polygon JSON for that exact synthetic geometry id, case, parcel, and source type. This safely corrects an existing demo row without changing user-created geometry, the control demo, or any non-matching row. Repeated initialization makes no further change.
 
 Phase 16B applies the same narrow, idempotent correction only to the exact former control seed JSON for `demo-family-002-geometry`. The corrected fictional square is 0.00064 degrees per side and calculates to approximately 1.2514493861 acres. Its identifiers, provenance (`SYNTHETIC`), source reference (`BHOOMICHECK-SYNTHETIC-GEO-002`), and contextual historical/survey areas (both 1.25 acres) are unchanged. This mutation cannot affect the hero seed, arbitrary cases, or user-imported rows.
 

@@ -1,4 +1,4 @@
-# BhoomiCheck Implementation Roadmap
+# Bhoomi Setu Implementation Roadmap
 
 ## Delivery approach
 

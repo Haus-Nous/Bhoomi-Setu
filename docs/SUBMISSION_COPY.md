@@ -1,8 +1,8 @@
-# BhoomiCheck Submission Copy
+# Bhoomi Setu Submission Copy
 
 ## Project title
 
-**BhoomiCheck**
+**Bhoomi Setu**
 
 ## Tagline
 
@@ -16,7 +16,7 @@ A synthetic-first land-survey readiness assistant that turns fragmented records 
 
 ### Medium
 
-BhoomiCheck is an independent synthetic-demo assistant for understanding a land-survey case before acting. It organizes evidence, separates AI-assisted extraction from deterministic verification, compares historical, survey, and mapped parcel areas, and guides preparation without claiming legal or government authority.
+Bhoomi Setu is an independent synthetic-demo assistant for understanding a land-survey case before acting. It organizes evidence, separates AI-assisted extraction from deterministic verification, compares historical, survey, and mapped parcel areas, and guides preparation without claiming legal or government authority.
 
 ## Problem
 
@@ -30,7 +30,7 @@ The hard part of land-survey preparation is often reconstructing one understanda
 
 ## Solution
 
-BhoomiCheck creates one synthetic evidence workflow: case → documents → structured extraction → deterministic verification → parcel intelligence → contextual official-record/Earth Observation views → guided next action. It preserves source traceability and explicitly returns insufficient evidence when facts are missing.
+Bhoomi Setu creates one synthetic evidence workflow: case → documents → structured extraction → deterministic verification → parcel intelligence → contextual official-record/Earth Observation views → guided next action. It preserves source traceability and explicitly returns insufficient evidence when facts are missing.
 
 ## How it works
 

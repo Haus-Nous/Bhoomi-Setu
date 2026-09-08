@@ -4,7 +4,7 @@ export const parcelAreaComparisonPolicy: ParcelAreaComparisonPolicy = {
   policyId: "BHOOMICHECK_DEMO_AREA_V1",
   consistentThresholdPercent: 2,
   reviewThresholdPercent: 5,
-  legalDisclaimer: "BhoomiCheck demo comparison tolerances are not legal, cadastral, statutory, or government tolerances.",
+  legalDisclaimer: "Bhoomi Setu demo comparison tolerances are not legal, cadastral, statutory, or government tolerances.",
 };
 
 const unitFactors: Record<string, number> = {

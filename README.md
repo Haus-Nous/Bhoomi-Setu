@@ -31,7 +31,7 @@ Dashboard → Documents → Verification → Parcel Intelligence
 
 Land-survey preparation can require a citizen to reconstruct one case from historical and current records, family or inheritance context, survey/Parcha information, parcel geometry, and supporting documents. The difficult question is often not where a form lives—it is what evidence exists, what agrees, what needs review, and what to prepare next.
 
-BhoomiCheck does not attempt to replace the land-record system. It provides a citizen-side, synthetic demonstration of an evidence workflow that makes those questions easier to inspect.
+Bhoomi Setu does not attempt to replace the land-record system. It provides a citizen-side, synthetic demonstration of an evidence workflow that makes those questions easier to inspect.
 
 ## The solution
 
@@ -82,7 +82,7 @@ Open [`/cases/demo-family-002`](http://localhost:3000/cases/demo-family-002) to 
 | Historical ↔ Geometry | approximately 14.6449% | `POTENTIAL_ISSUE` |
 | Survey ↔ Geometry | approximately 0.4160% | `CONSISTENT` |
 
-In plain language: the historical synthetic record differs from both the survey and mapped boundary; the survey and mapped geometry are closely aligned. BhoomiCheck never converts that pattern into an ownership, title, inheritance, or legal conclusion.
+In plain language: the historical synthetic record differs from both the survey and mapped boundary; the survey and mapped geometry are closely aligned. Bhoomi Setu never converts that pattern into an ownership, title, inheritance, or legal conclusion.
 
 ## Key capabilities
 
@@ -96,7 +96,7 @@ In plain language: the historical synthetic record differs from both the survey 
 - Prepare a local MOCK review packet and receive one practical next step.
 - Use the interface in English or Hindi.
 
-## Why BhoomiCheck is different
+## Why Bhoomi Setu is different
 
 1. **Evidence-first, not chatbot-first.** Records and their sources lead the journey.
 2. **AI extracts; deterministic rules verify.** An LLM cannot decide a discrepancy or legal outcome.
@@ -109,7 +109,7 @@ In plain language: the historical synthetic record differs from both the survey 
 
 ## Architecture
 
-![BhoomiCheck architecture and data flow](docs/architecture-diagram.svg)
+![Bhoomi Setu architecture and data flow](docs/architecture-diagram.svg)
 
 - Route-driven UI resolves a selected `CaseDetail` through `CaseService` and case-scoped API routes.
 - `CaseApplicationService` assembles the persisted aggregate; UI components do not read databases or fixtures directly.
@@ -143,7 +143,7 @@ These figures apply only to the repository's synthetic evaluation suite. They ar
 
 ## Safety and prototype boundary
 
-- BhoomiCheck is an independent prototype using fictional, synthetic demo data only.
+- Bhoomi Setu is an independent prototype using fictional, synthetic demo data only.
 - It is not a Government of Bihar product or portal, does not retrieve live government records, and does not submit anything.
 - Synthetic official-style records are non-authoritative context, not legal evidence.
 - Earth Observation is synthetic contextual imagery, not cadastral or legal evidence.

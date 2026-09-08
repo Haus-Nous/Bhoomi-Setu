@@ -13,7 +13,7 @@ export interface GovernmentAdapter {
 export class MockGovernmentAdapter implements GovernmentAdapter {
   getSurveyStatus(context: GovernmentCaseContext) { const stage = resolveSurveyWorkflowStage(context.case.surveyStage); return { source: "MOCK_GOVERNMENT_ADAPTER" as const, synthetic: true as const, data: { stageId: stage.id, stage: context.case.surveyStage }, disclaimer: "Synthetic demo data only. This is not an official government status." }; }
   getSurveyRecord(context: GovernmentCaseContext) { return { source: "MOCK_GOVERNMENT_ADAPTER" as const, synthetic: true as const, data: context.surveyRecord ?? null, disclaimer: "Synthetic demo data only. This is not an official government record." }; }
-  getAvailableActions(context: GovernmentCaseContext) { const stage = resolveSurveyWorkflowStage(context.case.surveyStage); return { source: "MOCK_GOVERNMENT_ADAPTER" as const, synthetic: true as const, data: stage.safeActions, disclaimer: "Synthetic demo data only. No government action can be submitted from BhoomiCheck." }; }
+  getAvailableActions(context: GovernmentCaseContext) { const stage = resolveSurveyWorkflowStage(context.case.surveyStage); return { source: "MOCK_GOVERNMENT_ADAPTER" as const, synthetic: true as const, data: stage.safeActions, disclaimer: "Synthetic demo data only. No government action can be submitted from Bhoomi Setu." }; }
 }
 
 // Future approved integrations must implement GovernmentAdapter using documented, authorized interfaces only.

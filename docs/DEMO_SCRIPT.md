@@ -1,4 +1,4 @@
-# BhoomiCheck Demo Script
+# Bhoomi Setu Demo Script
 
 ## Before recording or presenting
 
@@ -16,7 +16,7 @@
 
 **Say:**
 
-> Land-survey preparation can leave families with historical papers, family information, survey records, and parcel information that are difficult to compare. BhoomiCheck is an independent synthetic-demo assistant that organizes that evidence before anyone takes an outside action. It is not a government portal and it does not make legal decisions.
+> Land-survey preparation can leave families with historical papers, family information, survey records, and parcel information that are difficult to compare. Bhoomi Setu is an independent synthetic-demo assistant that organizes that evidence before anyone takes an outside action. It is not a government portal and it does not make legal decisions.
 
 Point briefly to the hero proof: `DEMO-128 / DEMO-456`, historical 1.20 acre, survey 1.02 acre, mapped 1.0243 acre.
 
@@ -44,7 +44,7 @@ Optional: open one **Inspect fields** panel and its traceability disclosure. Do 
 
 **Say:**
 
-> Verification is deterministic. For the hero case, BhoomiCheck finds a potential area difference and a family-context difference, with source-linked evidence. When a required fact is missing, the system says insufficient evidence instead of making something up.
+> Verification is deterministic. For the hero case, Bhoomi Setu finds a potential area difference and a family-context difference, with source-linked evidence. When a required fact is missing, the system says insufficient evidence instead of making something up.
 
 ### 1:25–1:55 — Parcel Intelligence
 
@@ -52,7 +52,7 @@ Optional: open one **Inspect fields** panel and its traceability disclosure. Do 
 
 **Say:**
 
-> This is the central comparison moment. BhoomiCheck keeps three independent synthetic area perspectives: the historical document at 1.20 acres, the survey/Parcha at 1.02, and geometry calculated from synthetic GeoJSON at about 1.0243. Historical differs from both; survey and geometry closely align. That is a traceable pattern for review, not a decision about which record is legally correct.
+> This is the central comparison moment. Bhoomi Setu keeps three independent synthetic area perspectives: the historical document at 1.20 acres, the survey/Parcha at 1.02, and geometry calculated from synthetic GeoJSON at about 1.0243. Historical differs from both; survey and geometry closely align. That is a traceable pattern for review, not a decision about which record is legally correct.
 
 Point to the pairwise comparisons and open one traceability disclosure.
 
@@ -80,7 +80,7 @@ Do not describe the fixture as official or click Import unless demonstrating the
 
 **Say:**
 
-> Instead of submitting anything automatically, BhoomiCheck turns the evidence into a practical preparation step. A review packet is a local MOCK preparation artifact, never a government claim, objection, or submission.
+> Instead of submitting anything automatically, Bhoomi Setu turns the evidence into a practical preparation step. A review packet is a local MOCK preparation artifact, never a government claim, objection, or submission.
 
 ### 2:50–3:00 — close
 
@@ -88,7 +88,7 @@ Do not describe the fixture as official or click Import unless demonstrating the
 
 **Say:**
 
-> BhoomiCheck separates AI-assisted extraction from deterministic verification, keeps evidence and provenance traceable, and demonstrates future provider boundaries without pretending to have live government access. Every demo record is synthetic.
+> Bhoomi Setu separates AI-assisted extraction from deterministic verification, keeps evidence and provenance traceable, and demonstrates future provider boundaries without pretending to have live government access. Every demo record is synthetic.
 
 ## 30-second backup demo
 
@@ -96,7 +96,7 @@ Do not describe the fixture as official or click Import unless demonstrating the
 
 **Say:**
 
-> BhoomiCheck turns fragmented synthetic land evidence into a traceable, deterministic comparison and practical preparation guidance. In this hero case, a 1.20-acre historical record differs from the 1.02-acre survey/Parcha and 1.0243-acre mapped synthetic geometry, while survey and geometry closely align. The system flags a potential issue for review—not a legal conclusion—and guides the citizen to prepare the next step without submitting anything.
+> Bhoomi Setu turns fragmented synthetic land evidence into a traceable, deterministic comparison and practical preparation guidance. In this hero case, a 1.20-acre historical record differs from the 1.02-acre survey/Parcha and 1.0243-acre mapped synthetic geometry, while survey and geometry closely align. The system flags a potential issue for review—not a legal conclusion—and guides the citizen to prepare the next step without submitting anything.
 
 ## Presenter guardrails
 
