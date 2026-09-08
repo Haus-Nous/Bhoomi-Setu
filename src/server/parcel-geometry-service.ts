@@ -15,8 +15,8 @@ const oldControlGeometry: ParcelGeoJson = { type: "Polygon", coordinates: [[[0.0
 const correctedControlGeometry: ParcelGeoJson = { type: "Polygon", coordinates: [[[0.01, 0.01], [0.01064, 0.01], [0.01064, 0.01064], [0.01, 0.01064], [0.01, 0.01]]] };
 
 const seedGeometries = [
-  syntheticGeometry("demo-family-001-geometry", "demo-family-001", "demo-family-001-parcel", "DEMO-128", "DEMO-456", "BHOOMICHECK-SYNTHETIC-GEO-001-V2", correctedHeroGeometry),
-  syntheticGeometry("demo-family-002-geometry", "demo-family-002", "demo-family-002-parcel", "DEMO-902", "DEMO-114", "BHOOMICHECK-SYNTHETIC-GEO-002", correctedControlGeometry),
+  syntheticGeometry("demo-family-001-geometry", "demo-family-001", "demo-family-001-parcel", "DEMO-128", "DEMO-456", "BHOOMI_SETU-SYNTHETIC-GEO-001-V2", correctedHeroGeometry),
+  syntheticGeometry("demo-family-002-geometry", "demo-family-002", "demo-family-002-parcel", "DEMO-902", "DEMO-114", "BHOOMI_SETU-SYNTHETIC-GEO-002", correctedControlGeometry),
 ] as const;
 
 const fromRow = (row: GeometryRow): ParcelGeometry => {

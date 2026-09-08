@@ -40,7 +40,7 @@ export type EarthObservationInsight = {
   overallClassification: EarthObservationClassification;
   provider: ImageryProviderName;
   policy: {
-    id: "BHOOMICHECK_SYNTHETIC_CONTEXT_V1";
+    id: "BHOOMI_SETU_SYNTHETIC_CONTEXT_V1";
     stableThresholdPercentagePoints: number;
     noticeableThresholdPercentagePoints: number;
   };

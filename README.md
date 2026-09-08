@@ -8,11 +8,11 @@ Bhoomi Setu is a synthetic-first land-survey readiness assistant. It turns fragm
 
 ## Provenance
 
-Bhoomi Setu extends BhoomiCheck (github.com/Haus-Nous/bhoomi-check), an
+Bhoomi Setu extends Bhoomi Setu (github.com/Haus-Nous/bhoomi-check), an
 earlier synthetic-demo prototype by the same team (Team "The White Knight").
-BhoomiCheck's deterministic verification, three-way area reconciliation, and
+Bhoomi Setu's deterministic verification, three-way area reconciliation, and
 evidence-traceability design carry forward here. This repository's full
-commit history (including BhoomiCheck's original commits) is preserved
+commit history (including Bhoomi Setu's original commits) is preserved
 intentionally, to show the project's actual development timeline.
 
 ## Demo

@@ -57,7 +57,7 @@ export type ParcelAreaPairwiseComparison = {
   explanationKey: string;
 };
 export type ParcelAreaComparisonPolicy = {
-  policyId: "BHOOMICHECK_DEMO_AREA_V1";
+  policyId: "BHOOMI_SETU_DEMO_AREA_V1";
   consistentThresholdPercent: number;
   reviewThresholdPercent: number;
   legalDisclaimer: string;

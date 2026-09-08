@@ -18,7 +18,7 @@ No imagery metadata, indicator result, or user action is persisted in Phase 19. 
 | `demo-family-002` | two visually similar stable-open contexts | vegetation −2 pp and built-up +2 pp: `STABLE` |
 | Any known unconfigured synthetic case | no two-date fixture | `INSUFFICIENT_EVIDENCE` |
 
-`BHOOMICHECK_SYNTHETIC_CONTEXT_V1` uses absolute percentage-point movement: ≤4 is `STABLE`; 5–10 is `SMALL_CHANGE`; >10 is `NOTICEABLE_CHANGE`. Missing comparable values produce `INSUFFICIENT_EVIDENCE`; the service does not invent a change.
+`BHOOMI_SETU_SYNTHETIC_CONTEXT_V1` uses absolute percentage-point movement: ≤4 is `STABLE`; 5–10 is `SMALL_CHANGE`; >10 is `NOTICEABLE_CHANGE`. Missing comparable values produce `INSUFFICIENT_EVIDENCE`; the service does not invent a change.
 
 The visuals are deterministic SVG scene generation in the citizen UI and visibly label themselves as synthetic contextual imagery. Their `synthetic://` asset references identify local fixture data, not a remote image endpoint.
 

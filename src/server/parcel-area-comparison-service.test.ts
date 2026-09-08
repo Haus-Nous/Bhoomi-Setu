@@ -36,7 +36,7 @@ describe("parcel area comparison policy", () => {
   });
   it("returns insufficient evidence without inventing a difference", () => {
     expect(compareParcelAreas(document, source("SURVEY_RECORD", null)).status).toBe("INSUFFICIENT_EVIDENCE");
-    expect(parcelAreaComparisonPolicy.policyId).toBe("BHOOMICHECK_DEMO_AREA_V1");
+    expect(parcelAreaComparisonPolicy.policyId).toBe("BHOOMI_SETU_DEMO_AREA_V1");
   });
   it("summarizes hero, control, and missing-source patterns deterministically", () => {
     const hero = compareAllParcelAreas([source("DOCUMENT_RECORD", 1.2), source("SURVEY_RECORD", 1.02), source("GEOMETRY_CALCULATED", 1.0242606211991474)]);

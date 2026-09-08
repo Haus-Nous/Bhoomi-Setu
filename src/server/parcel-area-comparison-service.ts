@@ -1,7 +1,7 @@
 import type { ParcelAreaComparisonPolicy, ParcelAreaComparisonStatus, ParcelAreaComparisonSummary, ParcelAreaPairwiseComparison, ParcelAreaSource, ParcelAreaSourceType } from "@/types/geospatial";
 
 export const parcelAreaComparisonPolicy: ParcelAreaComparisonPolicy = {
-  policyId: "BHOOMICHECK_DEMO_AREA_V1",
+  policyId: "BHOOMI_SETU_DEMO_AREA_V1",
   consistentThresholdPercent: 2,
   reviewThresholdPercent: 5,
   legalDisclaimer: "Bhoomi Setu demo comparison tolerances are not legal, cadastral, statutory, or government tolerances.",

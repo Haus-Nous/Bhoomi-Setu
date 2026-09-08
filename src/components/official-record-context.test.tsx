@@ -68,7 +68,7 @@ describe("Documents imported-record context", () => {
     });
     expect(markup).toContain("Synthetic official-style record");
     expect(markup).toContain("View record");
-    expect(markup).toContain("BHOOMICHECK-SYNTHETIC-OFFICIAL-001");
+    expect(markup).toContain("BHOOMI_SETU-SYNTHETIC-OFFICIAL-001");
   });
 
   it("keeps imports case-scoped and leaves the ordinary document collection unchanged", async () => {

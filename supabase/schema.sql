@@ -1,4 +1,4 @@
--- BhoomiCheck synthetic-demo schema. Safe to run repeatedly in Supabase SQL Editor.
+-- Bhoomi Setu synthetic-demo schema. Safe to run repeatedly in Supabase SQL Editor.
 CREATE TABLE IF NOT EXISTS cases (id TEXT PRIMARY KEY, payload TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, synthetic BOOLEAN NOT NULL);
 CREATE TABLE IF NOT EXISTS people (id TEXT PRIMARY KEY, case_id TEXT NOT NULL, payload TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS family_relationships (id TEXT PRIMARY KEY, case_id TEXT NOT NULL, payload TEXT NOT NULL);

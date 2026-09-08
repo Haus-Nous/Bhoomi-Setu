@@ -82,7 +82,7 @@ describe("SupabasePostgresAdapter", () => {
     if (!oldControl) throw new Error("Expected the synthetic control geometry to be seeded.");
     oldControl.geometry_json = JSON.stringify({ type: "Polygon", coordinates: [[[0.01, 0.01], [0.01035, 0.01], [0.01035, 0.01035], [0.01, 0.01035], [0.01, 0.01]]] });
     await parcelGeometryService.ensureSeedGeometries();
-    expect(await parcelGeometryService.getForParcel("demo-family-002", "demo-family-002-parcel", "DEMO-902", "DEMO-114")).toMatchObject({ geometry: { coordinates: [[[0.01, 0.01], [0.01064, 0.01], [0.01064, 0.01064], [0.01, 0.01064], [0.01, 0.01]]] }, sourceReference: "BHOOMICHECK-SYNTHETIC-GEO-002" });
+    expect(await parcelGeometryService.getForParcel("demo-family-002", "demo-family-002-parcel", "DEMO-902", "DEMO-114")).toMatchObject({ geometry: { coordinates: [[[0.01, 0.01], [0.01064, 0.01], [0.01064, 0.01064], [0.01, 0.01064], [0.01, 0.01]]] }, sourceReference: "BHOOMI_SETU-SYNTHETIC-GEO-002" });
 
     await documentApplicationService.ensureSeedDocuments();
     const documents = await documentApplicationService.list("demo-family-001");

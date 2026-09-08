@@ -8,7 +8,7 @@ const indicators: Array<{ type: EarthObservationIndicatorType; explanationKey: E
 ];
 
 export const earthObservationPolicy = {
-  id: "BHOOMICHECK_SYNTHETIC_CONTEXT_V1" as const,
+  id: "BHOOMI_SETU_SYNTHETIC_CONTEXT_V1" as const,
   stableThresholdPercentagePoints: 4,
   noticeableThresholdPercentagePoints: 10,
 };

@@ -31,7 +31,7 @@ describe("synthetic geometry persistence", () => {
   it("corrects only the known old hero seed and remains idempotent", async () => {
     const database = getDatabase();
     const oldGeometry = JSON.stringify({ type: "Polygon", coordinates: [[[0, 0], [0.0005, 0], [0.0005, 0.0005], [0, 0.0005], [0, 0]]] });
-    await database.execute({ sql: "UPDATE parcel_geometries SET geometry_json = ?, source_reference = ? WHERE id = ?", params: [oldGeometry, "BHOOMICHECK-SYNTHETIC-GEO-001", "demo-family-001-geometry"] });
+    await database.execute({ sql: "UPDATE parcel_geometries SET geometry_json = ?, source_reference = ? WHERE id = ?", params: [oldGeometry, "BHOOMI_SETU-SYNTHETIC-GEO-001", "demo-family-001-geometry"] });
     await parcelGeometryService.ensureSeedGeometries();
     await parcelGeometryService.ensureSeedGeometries();
     const hero = await parcelGeometryService.getForParcel("demo-family-001", "demo-family-001-parcel", "DEMO-128", "DEMO-456");
@@ -47,7 +47,7 @@ describe("synthetic geometry persistence", () => {
     await parcelGeometryService.ensureSeedGeometries();
     await parcelGeometryService.ensureSeedGeometries();
     const control = await parcelGeometryService.getForParcel("demo-family-002", "demo-family-002-parcel", "DEMO-902", "DEMO-114");
-    expect(control).toMatchObject({ id: "demo-family-002-geometry", caseId: "demo-family-002", khataId: "DEMO-902", khesraId: "DEMO-114", provenance: "SYNTHETIC", sourceReference: "BHOOMICHECK-SYNTHETIC-GEO-002" });
+    expect(control).toMatchObject({ id: "demo-family-002-geometry", caseId: "demo-family-002", khataId: "DEMO-902", khesraId: "DEMO-114", provenance: "SYNTHETIC", sourceReference: "BHOOMI_SETU-SYNTHETIC-GEO-002" });
     expect(geospatialService.calculateArea(control!).acres).toBeGreaterThanOrEqual(1.24);
     expect(geospatialService.calculateArea(control!).acres).toBeLessThanOrEqual(1.26);
     const rows = await database.query<{ id: string }>({ sql: "SELECT id FROM parcel_geometries WHERE case_id = ?", params: ["demo-family-002"] });

@@ -60,7 +60,7 @@ A valid request returns 200 with the actual shape:
       "id": "synthetic-official-hero-001",
       "sourceProvider": "synthetic",
       "provenance": "SYNTHETIC_OFFICIAL_FIXTURE",
-      "sourceReference": "BHOOMICHECK-SYNTHETIC-OFFICIAL-001",
+      "sourceReference": "BHOOMI_SETU-SYNTHETIC-OFFICIAL-001",
       "parcelIdentity": { "district": "...", "circle": "...", "mauza": "...", "khataNumber": "...", "khesraNumber": "..." },
       "recordData": { "recordedArea": 1.2, "recordedAreaUnit": "acre", "normalizedAreaAcres": 1.2, "holderNames": ["..."], "recordType": "...", "surveyStage": "...", "remarks": "..." },
       "sourceMetadata": { "retrievedAt": "...", "displayName": "Synthetic official-style record", "syntheticNotice": "...", "authoritative": false }
@@ -89,7 +89,7 @@ The service retrieves the selected case and fixture and deterministically matche
     "officialRecordId": "synthetic-official-hero-001",
     "provider": "synthetic",
     "provenance": "SYNTHETIC_OFFICIAL_FIXTURE",
-    "sourceReference": "BHOOMICHECK-SYNTHETIC-OFFICIAL-001",
+    "sourceReference": "BHOOMI_SETU-SYNTHETIC-OFFICIAL-001",
     "identityMatch": "EXACT_MATCH",
     "record": { "...": "complete OfficialParcelRecord snapshot" },
     "importedAt": "..."
@@ -130,4 +130,4 @@ Returns read-only deterministic synthetic contextual imagery for a known case. T
 `demo-family-001` returns two snapshots and `NOTICEABLE_CHANGE`; `demo-family-002` returns a stable pair; a known case without a fixture returns 200 with `INSUFFICIENT_EVIDENCE`; an unknown case returns 404. This API is not an area source and cannot change Phase 17 comparison or verification output.
 # Parcel intelligence comparison fields
 
-`GET /api/cases/:caseId/parcel-intelligence` retains `parcel`, `geometry`, `calculatedArea`, and `recordedAreas`, and also returns `areaSources`, `pairwiseComparisons`, `comparisonSummary`, and `comparisonPolicy`. Each source carries raw and normalized values plus source traceability. Pairwise results use the `BHOOMICHECK_DEMO_AREA_V1` demo-only policy and do not change verification results.
+`GET /api/cases/:caseId/parcel-intelligence` retains `parcel`, `geometry`, `calculatedArea`, and `recordedAreas`, and also returns `areaSources`, `pairwiseComparisons`, `comparisonSummary`, and `comparisonPolicy`. Each source carries raw and normalized values plus source traceability. Pairwise results use the `BHOOMI_SETU_DEMO_AREA_V1` demo-only policy and do not change verification results.
