@@ -15,6 +15,8 @@ export function GlobeHero() {
 
     const INDIA_COORDS: [number, number] = [22.9734, 78.6569];
     const BASE_MARKER_SIZE = 0.04;
+    const CORE_COLOR: [number, number, number] = [0.79, 0.64, 0.31];
+    const HALO_COLOR: [number, number, number] = [0.5, 0.42, 0.25];
 
     const globe = createGlobe(canvas, {
       devicePixelRatio: 2,
@@ -29,7 +31,10 @@ export function GlobeHero() {
       baseColor: [0.1, 0.15, 0.22],
       markerColor: [0.79, 0.64, 0.31],
       glowColor: [0.32, 0.44, 0.62],
-      markers: [{ location: INDIA_COORDS, size: BASE_MARKER_SIZE }],
+      markers: [
+        { location: INDIA_COORDS, size: BASE_MARKER_SIZE * 2.4, color: HALO_COLOR },
+        { location: INDIA_COORDS, size: BASE_MARKER_SIZE, color: CORE_COLOR },
+      ],
     });
 
     const onResize = () => {
@@ -46,11 +51,15 @@ export function GlobeHero() {
     let animationFrameId: number;
     const animate = () => {
       phi += 0.0025;
-      const pulse = 1 + 0.1 * Math.sin(Date.now() / 900);
-      const markerSize = BASE_MARKER_SIZE * pulse;
+      // Halo oscillates between roughly 1.8x and 3.0x of BASE_MARKER_SIZE (calm ~5.6s cycle)
+      const pulse = 2.4 + 0.6 * Math.sin(Date.now() / 900);
+      const haloSize = BASE_MARKER_SIZE * pulse;
       globe.update({
         phi,
-        markers: [{ location: INDIA_COORDS, size: markerSize }],
+        markers: [
+          { location: INDIA_COORDS, size: haloSize, color: HALO_COLOR },
+          { location: INDIA_COORDS, size: BASE_MARKER_SIZE, color: CORE_COLOR },
+        ],
       });
       animationFrameId = requestAnimationFrame(animate);
     };
