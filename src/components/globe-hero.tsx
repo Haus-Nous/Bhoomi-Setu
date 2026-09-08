@@ -13,6 +13,9 @@ export function GlobeHero() {
     let phi = 0;
     let currentWidth = canvas.offsetWidth || 500;
 
+    const INDIA_COORDS: [number, number] = [22.9734, 78.6569];
+    const BASE_MARKER_SIZE = 0.04;
+
     const globe = createGlobe(canvas, {
       devicePixelRatio: 2,
       width: currentWidth * 2,
@@ -25,8 +28,8 @@ export function GlobeHero() {
       mapBrightness: 6,
       baseColor: [0.1, 0.15, 0.22],
       markerColor: [0.79, 0.64, 0.31],
-      glowColor: [0.25, 0.35, 0.5],
-      markers: [{ location: [22.9734, 78.6569], size: 0.08 }],
+      glowColor: [0.32, 0.44, 0.62],
+      markers: [{ location: INDIA_COORDS, size: BASE_MARKER_SIZE }],
     });
 
     const onResize = () => {
@@ -43,7 +46,12 @@ export function GlobeHero() {
     let animationFrameId: number;
     const animate = () => {
       phi += 0.0025;
-      globe.update({ phi });
+      const pulse = 1 + 0.1 * Math.sin(Date.now() / 900);
+      const markerSize = BASE_MARKER_SIZE * pulse;
+      globe.update({
+        phi,
+        markers: [{ location: INDIA_COORDS, size: markerSize }],
+      });
       animationFrameId = requestAnimationFrame(animate);
     };
     animationFrameId = requestAnimationFrame(animate);
