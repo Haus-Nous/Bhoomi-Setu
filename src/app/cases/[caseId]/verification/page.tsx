@@ -1,0 +1,10 @@
+"use client";
+import Link from "next/link";
+import { CasePage } from "@/components/case-page";
+import { CaseHeader, CaseNavigation } from "@/components/shell";
+import { EmptyState, VerificationDiscrepancyCard, VerificationIssue, VerificationSummary } from "@/components/domain";
+import { useTranslation } from "@/components/locale-context";
+import { useLocale } from "@/components/locale-context";
+import { localizedParcelComparisonPresentation } from "@/lib/i18n";
+
+export default function VerificationPage() { const c = useTranslation().verification; const { locale } = useLocale(); const parcel = localizedParcelComparisonPresentation(locale); return <CasePage>{(detail, caseId) => { const potentialIssues = detail.verification.filter((item) => item.outcome === "POTENTIAL_ISSUE"); return <main id="main" className="case-layout"><CaseNavigation caseId={caseId} /><div className="case-content"><CaseHeader title={c.pageTitle} subtitle={c.pageSubtitle} />{detail.verification.length ? <><VerificationSummary items={detail.verification} />{potentialIssues.length > 0 && <section className="discrepancy-list" aria-labelledby="potential-discrepancies"><div className="section-head"><div><p className="eyebrow">{c.potentialIssue}</p><h2 id="potential-discrepancies">{c.reviewDifferences}</h2></div></div>{potentialIssues.map((item) => <VerificationDiscrepancyCard key={item.id} item={item} documents={detail.documents} />)}</section>}<section className="all-checks" aria-labelledby="all-checks-title"><div className="section-head"><div><p className="eyebrow">{c.allChecks}</p><h2 id="all-checks-title">{c.allChecksTitle}</h2></div></div><div className="issue-list">{detail.verification.map((item) => <div key={item.id}><VerificationIssue item={item} />{item.ruleId === "AREA_CONSISTENCY" && <Link className="compact-action" href={`/cases/${caseId}/parcel-intelligence`}>{parcel.areaComparison} <span aria-hidden>→</span></Link>}</div>)}</div></section></> : <EmptyState title={c.noResultsTitle} detail={c.noResultsDetail} />}<aside className="callout verification-page-caution"><strong>{c.caution}</strong><p>{c.cautionDetail}</p></aside></div></main>; }}</CasePage>; }

@@ -1,0 +1,8 @@
+import { NextResponse } from "next/server";
+import { caseApplicationService } from "@/server/case-application-service";
+import { documentApplicationService } from "@/server/document-application-service";
+import { z } from "zod";
+export const runtime = "nodejs";
+export async function GET(_: Request, { params }: { params: Promise<{ caseId: string }> }) { const { caseId } = await params; await documentApplicationService.ensureSeedDocuments(); if (!await caseApplicationService.getCaseDetail(caseId)) return NextResponse.json({ error: { code: "CASE_NOT_FOUND", message: "Case not found." } }, { status: 404 }); return NextResponse.json({ data: await documentApplicationService.list(caseId) }); }
+const attachmentSchema = z.object({ fixtureId: z.string().regex(/^fixture-[a-z0-9-]+$/i) }).strict();
+export async function POST(request: Request, { params }: { params: Promise<{ caseId: string }> }) { const { caseId } = await params; const body = attachmentSchema.safeParse(await request.json().catch(() => null)); if (!body.success) return NextResponse.json({ error: { code: "INVALID_INPUT", message: "Choose a valid synthetic demo record." } }, { status: 400 }); if (!await caseApplicationService.getCaseDetail(caseId)) return NextResponse.json({ error: { code: "CASE_NOT_FOUND", message: "Case not found." } }, { status: 404 }); const existed = Boolean(await documentApplicationService.get(caseId, `${caseId}-${body.data.fixtureId}`)); const document = await documentApplicationService.attachSyntheticFixture(caseId, body.data.fixtureId); return document ? NextResponse.json({ data: document }, { status: existed ? 200 : 201 }) : NextResponse.json({ error: { code: "FIXTURE_NOT_FOUND", message: "That synthetic demo record is not available." } }, { status: 404 }); }

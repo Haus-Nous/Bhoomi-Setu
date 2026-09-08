@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840" role="img" aria-labelledby="title desc">
+  <title id="title">BhoomiCheck synthetic-demo architecture and data flow</title>
+  <desc id="desc">Citizen UI routes through case services and persistence to separate deterministic verification, parcel intelligence, synthetic official-record, synthetic Earth Observation, extraction, guidance, and review-packet services.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#176b5b"/></marker>
+    <style>
+      .bg{fill:#f8f7f1}.title{font:700 30px system-ui,sans-serif;fill:#17332d}.sub{font:400 16px system-ui,sans-serif;fill:#526b63}.box{fill:#fffefa;stroke:#b9cbc3;stroke-width:2}.core{fill:#e9f3ee;stroke:#176b5b;stroke-width:2}.safe{fill:#fff5db;stroke:#b88126;stroke-width:2}.label{font:700 17px system-ui,sans-serif;fill:#17332d}.copy{font:400 13px system-ui,sans-serif;fill:#526b63}.line{stroke:#176b5b;stroke-width:2.5;fill:none;marker-end:url(#arrow)}.dash{stroke:#b88126;stroke-width:2.5;fill:none;stroke-dasharray:7 6;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect class="bg" width="1200" height="840" rx="24"/>
+  <text class="title" x="54" y="58">BhoomiCheck: synthetic-demo evidence architecture</text>
+  <text class="sub" x="54" y="86">Provider boundaries are explicit; deterministic verification remains separate from AI and contextual data.</text>
+
+  <rect class="core" x="55" y="132" width="230" height="96" rx="14"/>
+  <text class="label" x="78" y="170">Citizen UI</text>
+  <text class="copy" x="78" y="195">Next.js routes · English/Hindi</text>
+  <text class="copy" x="78" y="214">Case-scoped presentation</text>
+
+  <rect class="core" x="390" y="132" width="270" height="96" rx="14"/>
+  <text class="label" x="414" y="170">Case application layer</text>
+  <text class="copy" x="414" y="195">CaseService → typed API routes</text>
+  <text class="copy" x="414" y="214">CaseApplicationService aggregate</text>
+
+  <rect class="core" x="765" y="132" width="280" height="96" rx="14"/>
+  <text class="label" x="789" y="170">Persistence adapter</text>
+  <text class="copy" x="789" y="195">SQLite locally</text>
+  <text class="copy" x="789" y="214">Postgres with DATABASE_URL</text>
+
+  <path class="line" d="M285 180H390"/><path class="line" d="M660 180H765"/>
+
+  <rect class="box" x="55" y="326" width="235" height="140" rx="14"/>
+  <text class="label" x="78" y="360">Document extraction</text>
+  <text class="copy" x="78" y="386">Gemini / OpenAI / safe unavailable</text>
+  <text class="copy" x="78" y="408">Zod + source-span + grounding</text>
+  <text class="copy" x="78" y="430">Candidate facts only</text>
+
+  <rect class="box" x="340" y="326" width="235" height="140" rx="14"/>
+  <text class="label" x="363" y="360">Verification service</text>
+  <text class="copy" x="363" y="386">Deterministic area + family rules</text>
+  <text class="copy" x="363" y="408">PASS / POTENTIAL_ISSUE /</text>
+  <text class="copy" x="363" y="430">INSUFFICIENT_EVIDENCE</text>
+
+  <rect class="box" x="625" y="326" width="235" height="140" rx="14"/>
+  <text class="label" x="648" y="360">Parcel Intelligence</text>
+  <text class="copy" x="648" y="386">Synthetic GeoJSON → Turf area</text>
+  <text class="copy" x="648" y="408">Historical · Survey · Geometry</text>
+  <text class="copy" x="648" y="430">Three-source comparison</text>
+
+  <rect class="box" x="910" y="326" width="235" height="140" rx="14"/>
+  <text class="label" x="933" y="360">Guidance + packet</text>
+  <text class="copy" x="933" y="386">One preparation next step</text>
+  <text class="copy" x="933" y="408">Local MOCK review packet</text>
+  <text class="copy" x="933" y="430">Never a submission</text>
+
+  <path class="line" d="M525 228V292H172V326"/><path class="line" d="M525 228V326"/><path class="line" d="M525 228V292H742V326"/><path class="line" d="M525 228V292H1028V326"/>
+
+  <rect class="safe" x="190" y="568" width="310" height="130" rx="14"/>
+  <text class="label" x="214" y="602">Official Record Service</text>
+  <text class="copy" x="214" y="628">OfficialParcelRecordProvider boundary</text>
+  <text class="copy" x="214" y="650">Synthetic fixture provider only</text>
+  <text class="copy" x="214" y="672">Non-authoritative context; no live access</text>
+
+  <rect class="safe" x="700" y="568" width="310" height="130" rx="14"/>
+  <text class="label" x="724" y="602">Earth Observation Service</text>
+  <text class="copy" x="724" y="628">ImageryProvider boundary</text>
+  <text class="copy" x="724" y="650">Synthetic imagery provider only</text>
+  <text class="copy" x="724" y="672">Contextual—not cadastral/legal evidence</text>
+
+  <path class="dash" d="M742 466V520H345V568"/><path class="dash" d="M742 466V568H855"/>
+  <text class="sub" x="55" y="766">Safety invariant: AI, official-style context, and Earth Observation never determine ownership, submit to an authority, or change deterministic verification truth.</text>
+  <text class="sub" x="55" y="796">All shown data, people, documents, geometry, records, and images are synthetic demo fixtures.</text>
+</svg>

@@ -1,0 +1,4 @@
+import { NextResponse } from "next/server";
+import { caseApplicationService, ValidationError } from "@/server/case-application-service";
+export const runtime = "nodejs";
+export async function POST(request: Request) { try { const body = await request.json() as Record<string, unknown>; const detail = await caseApplicationService.createCase({ district: String(body.district || ""), circle: String(body.circle || ""), village: String(body.village || ""), khata: String(body.khata || ""), khesra: body.khesra ? String(body.khesra) : undefined, nickname: String(body.nickname || "") }); return NextResponse.json({ data: detail }, { status: 201 }); } catch (error) { if (error instanceof ValidationError) return NextResponse.json({ error: { code: "INVALID_INPUT", message: error.message } }, { status: 400 }); return NextResponse.json({ error: { code: "CASE_CREATION_FAILED", message: "We could not create the synthetic case right now. Please try again." } }, { status: 500 }); } }

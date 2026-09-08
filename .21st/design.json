@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "project": {
+    "name": "bhoomi-check",
+    "productType": "citizen assistance web application",
+    "stack": ["Next.js", "React", "TypeScript"]
+  },
+  "sources": {
+    "tokens": [],
+    "components": [],
+    "assets": [],
+    "instructions": []
+  },
+  "design": {
+    "colorMode": "light",
+    "colors": {"primary":"#176b5b","surface":"#fffefa","background":"#f8f7f1","warning":"#8c5d16"},
+    "typography": {"style":"clear, large, system sans-serif"},
+    "spacing": {},
+    "radius": {},
+    "shadows": {},
+    "motion": {},
+    "density": "comfortable"
+  },
+  "components": {
+    "installed": [],
+    "preferredPrimitives": [],
+    "patterns": []
+  },
+  "constraints": {
+    "must": ["mobile-first", "large touch targets", "persistent independent-prototype notice", "clear status hierarchy"],
+    "avoid": ["government logos", "dense dashboards", "decorative AI", "excessive animation"]
+  },
+  "decisions": ["Use a restrained, warm civic-assistance aesthetic with deep green status accents; it must feel independent rather than governmental."],
+  "evidence": [],
+  "generatedAt": "2026-08-23T13:24:58.405Z"
+}

@@ -1,0 +1,20 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { CasePage } from "@/components/case-page";
+import { CaseHeader, CaseNavigation } from "@/components/shell";
+import { EmptyState } from "@/components/domain";
+import type { GuidanceStatus } from "@/types/case";
+import { useTranslation } from "@/components/locale-context";
+
+export default function NextActionPage() {
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const c = useTranslation();
+  return <CasePage>{(detail, caseId) => {
+    const actions = detail.guidance ?? [];
+    const ready = actions.filter((action) => action.status === "READY_TO_REVIEW");
+    const statusLabel: Record<GuidanceStatus, string> = { READY_TO_REVIEW: c.guidance.ready, NEEDS_MORE_INFORMATION: c.guidance.moreInfo, NO_ACTION_NEEDED: c.guidance.noAction };
+    if (!actions.length) return <main id="main" className="case-layout"><CaseNavigation caseId={caseId} /><div className="case-content"><CaseHeader title={c.guidance.header} subtitle={c.guidance.subtitle} /><EmptyState title={c.guidance.emptyTitle} detail={c.guidance.emptyDetail} /></div></main>;
+    return <main id="main" className="case-layout"><CaseNavigation caseId={caseId} /><div className="case-content"><CaseHeader title={c.guidance.header} subtitle={c.guidance.subtitle} /><section className="preparation-summary" aria-labelledby="preparation-summary-title"><div><p className="eyebrow">{c.guidance.prepare}</p><h2 id="preparation-summary-title">{ready.length ? `${ready.length} ${c.guidance.reviewFirst}` : c.guidance.noUrgency}</h2><p>{ready.length ? c.guidance.startReview : c.guidance.needInformation}</p></div><span className={`guidance-status ${ready.length ? "ready" : "information"}`}>{ready.length ? `! ${c.guidance.review}` : `i ${c.guidance.information}`}</span></section>{ready[0] && <Link className="compact-action" href={`/cases/${caseId}/review-packet?result=${encodeURIComponent(ready[0].verificationResultId)}`}>{c.cta.preparePacket} <span aria-hidden>→</span></Link>}<ol className="guidance-list" aria-label={c.guidance.prepare}>{actions.map((action, index) => { const finding = detail.verification.find((item) => item.id === action.verificationResultId); const documents = action.documentIds.map((id) => detail.documents.find((document) => document.id === id)).filter((document): document is NonNullable<typeof document> => Boolean(document)); return <li key={action.id}><article className={`guidance-item ${action.status.toLowerCase()}`}><div className="guidance-item-heading"><div><p className="eyebrow">{index + 1} · {action.ruleId.replace(/_/g, " ")}</p><h2>{action.title}</h2></div><span className="guidance-status">{statusLabel[action.status]}</span></div><section className="guidance-found" aria-labelledby={`${action.id}-found`}><h3 id={`${action.id}-found`}>{c.guidance.found}</h3><p>{finding?.detail || c.guidance.unavailable}</p>{finding?.expectedValue && <p className="micro"><strong>{c.guidance.compared}:</strong> {finding.expectedValue} / {finding.observedValue || c.labels.notAvailable}</p>}</section><section aria-labelledby={`${action.id}-review`}><h3 id={`${action.id}-review`}>{c.guidance.reviewNext}</h3><p>{action.explanation}</p><ul className="guidance-documents" aria-label={c.guidance.relatedRecords}>{documents.map((document) => <li key={document.id}><strong>{document.title}</strong><span>{document.type} · {document.id}</span></li>)}</ul></section><fieldset className="citizen-checklist"><legend>{c.guidance.checklist}</legend>{action.checklist.map((item) => { const id = `${action.id}-${item.id}`; return <label key={id}><input type="checkbox" checked={Boolean(checked[id])} onChange={() => setChecked((current) => ({ ...current, [id]: !current[id] }))} /><span>{item.label}</span></label>; })}</fieldset><aside className="guidance-caution"><strong>{c.guidance.cannot}</strong><p>{action.caution}</p></aside></article></li>; })}</ol><aside className="callout"><strong>{c.guidance.preparation}</strong><p>{c.guidance.preparationDetail}</p></aside></div></main>;
+  }}</CasePage>;
+}

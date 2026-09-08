@@ -1,12 +1,28 @@
-.env
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js & TypeScript
+.next/
+*.tsbuildinfo
+dist/
+
+# Environment
+.env*
+!.env.example
+
+# Local SQLite databases
+data/*.sqlite
+
+# Test & coverage
+coverage/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
 .venv/
 __pycache__/
 *.py[cod]
-node_modules/
-dist/
-coverage/
+
+# OS
 .DS_Store
 

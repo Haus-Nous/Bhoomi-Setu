@@ -1,0 +1,7 @@
+import { describe, expect, it } from "vitest";
+import { caseApplicationService } from "@/server/case-application-service";
+import { buildTimeline } from "@/server/case-state-service";
+import { guidanceService } from "@/server/guidance-service";
+import { verificationService } from "@/server/verification-service";
+import { documentApplicationService } from "@/server/document-application-service";
+describe("case state timeline", () => { it("shows only available hero state and no fictional ready packet", async () => { const detail = (await caseApplicationService.getCaseDetail("demo-family-001"))!; const verification = (await verificationService.run("demo-family-001"))!; const events = buildTimeline({ ...detail, verification, guidance: guidanceService.build("demo-family-001", verification, await documentApplicationService.list("demo-family-001")) }, []); expect(events.map((event) => event.title)).toContain("Verification completed"); expect(events.map((event) => event.title)).toContain("Potential discrepancy identified"); expect(events.map((event) => event.title)).not.toContain("Ready for review"); }); it("keeps a new empty case limited to recorded activity", async () => { const detail = await caseApplicationService.createCase({ district: "Demo District", circle: "Demo Circle", village: "Demo Mauza", khata: "DEMO-TIMELINE-001", nickname: "Synthetic empty timeline case" }); expect(buildTimeline(detail, []).map((event) => event.title)).toEqual(["Case created"]); }); });
