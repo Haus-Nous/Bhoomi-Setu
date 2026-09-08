@@ -35,12 +35,37 @@ const schema = [
   "CREATE TABLE IF NOT EXISTS review_packets (id TEXT PRIMARY KEY, case_id TEXT NOT NULL, payload TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS case_official_records (id TEXT PRIMARY KEY, case_id TEXT NOT NULL, official_record_id TEXT NOT NULL, payload TEXT NOT NULL, UNIQUE(case_id, official_record_id))",
   "CREATE TABLE IF NOT EXISTS document_extractions (id TEXT PRIMARY KEY, case_id TEXT NOT NULL, document_id TEXT NOT NULL, status TEXT NOT NULL, payload TEXT NOT NULL, created_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS anchor_events (id TEXT PRIMARY KEY, case_id TEXT NOT NULL, subject_type TEXT NOT NULL, subject_id TEXT NOT NULL, payload_hash TEXT NOT NULL, prev_hash TEXT, signed_by TEXT NOT NULL, signed_at TEXT NOT NULL, UNIQUE(case_id, subject_type, subject_id))",
   "CREATE INDEX IF NOT EXISTS documents_case_id ON documents(case_id)",
   "CREATE INDEX IF NOT EXISTS parcels_case_id ON land_parcels(case_id)",
   "CREATE INDEX IF NOT EXISTS parcel_geometries_case_parcel ON parcel_geometries(case_id, parcel_id)",
   "CREATE INDEX IF NOT EXISTS packets_case_id ON review_packets(case_id)",
   "CREATE INDEX IF NOT EXISTS official_records_case_id ON case_official_records(case_id)",
   "CREATE INDEX IF NOT EXISTS extraction_document_id ON document_extractions(case_id, document_id, created_at)",
+  "CREATE INDEX IF NOT EXISTS anchor_events_case_id ON anchor_events(case_id)",
+];
+
+const sqliteTriggers = [
+  "CREATE TRIGGER IF NOT EXISTS prevent_anchor_events_update BEFORE UPDATE ON anchor_events BEGIN SELECT RAISE(ABORT, 'anchor_events is append-only'); END;",
+  "CREATE TRIGGER IF NOT EXISTS prevent_anchor_events_delete BEFORE DELETE ON anchor_events BEGIN SELECT RAISE(ABORT, 'anchor_events is append-only'); END;",
+];
+
+const postgresTriggers = [
+  `CREATE OR REPLACE FUNCTION raise_anchor_events_append_only() RETURNS trigger AS $$
+BEGIN
+  RAISE EXCEPTION 'anchor_events is append-only';
+END;
+$$ LANGUAGE plpgsql;`,
+  `DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger WHERE tgname = 'prevent_anchor_events_update_delete'
+  ) THEN
+    CREATE TRIGGER prevent_anchor_events_update_delete
+    BEFORE UPDATE OR DELETE ON anchor_events
+    FOR EACH ROW EXECUTE FUNCTION raise_anchor_events_append_only();
+  END IF;
+END $$;`,
 ];
 
 export const postgresSql = (sql: string) => {
@@ -48,12 +73,13 @@ export const postgresSql = (sql: string) => {
   return sql.replace(/\?/g, () => `$${++parameter}`);
 };
 
-class LocalSqliteAdapter implements DatabaseAdapter {
+export class LocalSqliteAdapter implements DatabaseAdapter {
   readonly kind = "sqlite" as const;
   private database: import("node:sqlite").DatabaseSync | undefined;
   private initialized: Promise<void> | undefined;
-  private async db() { if (!this.database) { const [{ DatabaseSync }, { mkdirSync }, { join }] = await Promise.all([import("node:sqlite"), import("node:fs"), import("node:path")]); mkdirSync(join(process.cwd(), "data"), { recursive: true }); this.database = new DatabaseSync(join(process.cwd(), "data", "bhoomi-check.sqlite")); } return this.database; }
-  async initialize() { if (!this.initialized) this.initialized = (async () => { const db = await this.db(); for (const item of schema) db.exec(item); })(); return this.initialized; }
+  constructor(private dbPath?: string) {}
+  private async db() { if (!this.database) { const [{ DatabaseSync }, { mkdirSync }, { join }] = await Promise.all([import("node:sqlite"), import("node:fs"), import("node:path")]); if (this.dbPath) { this.database = new DatabaseSync(this.dbPath); } else { mkdirSync(join(process.cwd(), "data"), { recursive: true }); this.database = new DatabaseSync(join(process.cwd(), "data", "bhoomi-check.sqlite")); } } return this.database; }
+  async initialize() { if (!this.initialized) this.initialized = (async () => { const db = await this.db(); for (const item of schema) db.exec(item); for (const item of sqliteTriggers) db.exec(item); })(); return this.initialized; }
   async query<T extends Record<string, unknown>>({ sql, params = [] }: SqlStatement) { const db = await this.db(); return db.prepare(sql).all(...params.map((value) => typeof value === "boolean" ? Number(value) : value)) as T[]; }
   async execute({ sql, params = [] }: SqlStatement) { const db = await this.db(); db.prepare(sql).run(...params.map((value) => typeof value === "boolean" ? Number(value) : value)); }
   async transaction(statements: SqlStatement[]) { const db = await this.db(); db.exec("BEGIN"); try { for (const statement of statements) db.prepare(statement.sql).run(...(statement.params ?? []).map((value) => typeof value === "boolean" ? Number(value) : value)); db.exec("COMMIT"); } catch (error) { db.exec("ROLLBACK"); throw error; } }
@@ -66,7 +92,7 @@ export class SupabasePostgresAdapter implements DatabaseAdapter {
   private initialized: Promise<void> | undefined;
   constructor(client?: PostgresClient) { this.client = client; }
   private sql() { if (!this.client) this.client = postgres(process.env.DATABASE_URL!, { prepare: false, max: 1, idle_timeout: 10, connect_timeout: 10 }) as unknown as PostgresClient; return this.client; }
-  async initialize() { if (!this.initialized) this.initialized = (async () => { for (const item of schema) await this.sql().unsafe(item); })(); return this.initialized; }
+  async initialize() { if (!this.initialized) this.initialized = (async () => { for (const item of schema) await this.sql().unsafe(item); for (const item of postgresTriggers) await this.sql().unsafe(item); })(); return this.initialized; }
   async query<T extends Record<string, unknown>>({ sql, params = [] }: SqlStatement) { return await this.sql().unsafe(postgresSql(sql), params) as T[]; }
   async execute(statement: SqlStatement) { await this.query(statement); }
   async transaction(statements: SqlStatement[]) { await this.sql().begin(async (transaction) => { for (const statement of statements) await transaction.unsafe(postgresSql(statement.sql), statement.params ?? []); }); }

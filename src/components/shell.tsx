@@ -29,7 +29,7 @@ export const caseNavigationSections = (caseId: string): { primary: CaseNavigatio
 export function SiteHeader() {
   const c = useTranslation();
   const { locale, setLocale } = useLocale();
-  return <><a className="skip" href="#main">{c.labels.skip}</a><header className="site-header"><Link href="/" className="brand" aria-label={c.labels.homeLabel}><span className="brand-mark" aria-hidden>⌂</span><span>Bhoomi<span>Check</span></span></Link><nav aria-label={c.labels.primaryNav}><button type="button" className="locale-switch" aria-label={c.labels.chooseLanguage} aria-pressed={locale === "hi"} onClick={() => setLocale(locale === "en" ? "hi" : "en")}>{locale === "en" ? "हिंदी" : "English"}</button><Link href={`/cases/${defaultCaseId}`}>{c.nav.dashboard}</Link><Link className="button small" href="/create-case">{c.cta.check}</Link></nav></header></>;
+  return <><a className="skip" href="#main">{c.labels.skip}</a><header className="site-header"><Link href="/" className="brand" aria-label={c.labels.homeLabel}><span className="brand-mark" aria-hidden>⌂</span><span>Bhoomi<span>Setu</span></span></Link><nav aria-label={c.labels.primaryNav}><button type="button" className="locale-switch" aria-label={c.labels.chooseLanguage} aria-pressed={locale === "hi"} onClick={() => setLocale(locale === "en" ? "hi" : "en")}>{locale === "en" ? "हिंदी" : "English"}</button><Link href={`/cases/${defaultCaseId}`}>{c.nav.dashboard}</Link><Link className="button small" href="/create-case">{c.cta.check}</Link></nav></header></>;
 }
 
 function CaseNavigationLinks({ links, pathname, c }: { links: CaseNavigationLink[]; pathname: string; c: ReturnType<typeof useTranslation> }) {

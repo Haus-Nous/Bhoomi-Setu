@@ -17,7 +17,10 @@ class MockPostgresClient implements PostgresClient {
 
   async unsafe(query: string, params: SqlValue[] = []): Promise<unknown> {
     this.queries.push({ query, params });
-    if (query.startsWith("CREATE ") || query.startsWith("SELECT 1")) return query.startsWith("SELECT 1") ? [{ ok: 1 }] : [];
+    if (query.startsWith("UPDATE anchor_events") || query.startsWith("DELETE FROM anchor_events")) {
+      throw new Error("anchor_events is append-only");
+    }
+    if (query.startsWith("CREATE ") || query.startsWith("SELECT 1") || query.startsWith("DO $$")) return query.startsWith("SELECT 1") ? [{ ok: 1 }] : [];
     const selectId = query.match(/^SELECT id FROM (\w+) WHERE id = \$1$/);
     if (selectId) return this.table(selectId[1]!).has(String(params[0])) ? [{ id: params[0] }] : [];
     if (query.startsWith("UPDATE parcel_geometries SET geometry_json = $1, source_reference = $2, updated_at = $3 WHERE id = $4")) {
@@ -57,9 +60,26 @@ describe("SupabasePostgresAdapter", () => {
     await database.query({ sql: "SELECT payload FROM cases WHERE id = ?", params: ["demo-family-001"] });
     await database.transaction([{ sql: "INSERT INTO cases (id,payload,created_at,updated_at,synthetic) VALUES (?,?,?,?,?)", params: ["demo", "{}", "now", "now", true] }]);
     expect(client.queries.some(({ query }) => query.startsWith("CREATE TABLE IF NOT EXISTS cases"))).toBe(true);
+    expect(client.queries.some(({ query }) => query.startsWith("CREATE TABLE IF NOT EXISTS anchor_events"))).toBe(true);
+    expect(client.queries.some(({ query }) => query.includes("raise_anchor_events_append_only"))).toBe(true);
+    expect(client.queries.some(({ query }) => query.includes("prevent_anchor_events_update_delete"))).toBe(true);
     expect(client.queries).toContainEqual({ query: "SELECT payload FROM cases WHERE id = $1", params: ["demo-family-001"] });
     expect(client.queries).toContainEqual({ query: "INSERT INTO cases (id,payload,created_at,updated_at,synthetic) VALUES ($1,$2,$3,$4,$5)", params: ["demo", "{}", "now", "now", true] });
     expect(client.transactionCount).toBe(1);
+  });
+
+  it("enforces append-only invariant on anchor_events under Postgres adapter", async () => {
+    const client = new MockPostgresClient();
+    const database = new SupabasePostgresAdapter(client);
+    await database.initialize();
+
+    await expect(
+      database.execute({ sql: "UPDATE anchor_events SET payload_hash = ? WHERE id = ?", params: ["tampered", "anc_1"] })
+    ).rejects.toThrow("anchor_events is append-only");
+
+    await expect(
+      database.execute({ sql: "DELETE FROM anchor_events WHERE id = ?", params: ["anc_1"] })
+    ).rejects.toThrow("anchor_events is append-only");
   });
 
   it("seeds, reads, creates, retrieves documents and packets through the Postgres contract", async () => {

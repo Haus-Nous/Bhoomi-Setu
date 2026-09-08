@@ -14,6 +14,7 @@ Local development stores synthetic case aggregates in Node SQLite at `data/bhoom
 | Timeline events | `timeline_events` | Persisted case activity plus packet events. It is citizen-facing history, not a technical audit log. |
 | Parcel geometry | `parcel_geometries` | Case- and parcel-scoped portable GeoJSON text, source/provenance reference, and timestamps. Seed rows are synthetic only; no PostGIS requirement exists. |
 | Imported synthetic official-style record | `case_official_records` | A case-scoped snapshot of a selected synthetic provider fixture, kept separate from ordinary documents and parcel-area comparison inputs. |
+| Anchor integrity log | `anchor_events` | Append-only, hash-chained records of signed verification results. Table-level database triggers prohibit UPDATE and DELETE in both SQLite and Supabase Postgres. |
 
 `READY_FOR_REVIEW` means a local packet snapshot is frozen; it is never submitted, received, or approved by any government system. The packet service reuses the earliest packet for a case/result pair rather than generating duplicate drafts.
 
@@ -49,6 +50,31 @@ case_official_records(
 The table is intentionally not the `documents` table. Imported official-style records do not change the ordinary case document collection, extraction state, verification evidence, or Phase 17's three-source area model.
 
 New synthetic cases have no automatically invented geometry. The parcel-intelligence read model therefore returns `geometry: null` and `calculatedArea: null` until an approved future geometry path exists.
+
+## Trust Layer / Anchor model
+
+The **anchor_events** table provides an append-only, cryptographic audit log of signed verification results:
+
+```sql
+CREATE TABLE IF NOT EXISTS anchor_events (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL,
+  subject_type TEXT NOT NULL,
+  subject_id TEXT NOT NULL,
+  payload_hash TEXT NOT NULL,
+  prev_hash TEXT,
+  signed_by TEXT NOT NULL,
+  signed_at TEXT NOT NULL,
+  UNIQUE(case_id, subject_type, subject_id)
+);
+CREATE INDEX IF NOT EXISTS anchor_events_case_id ON anchor_events(case_id);
+```
+
+- `payload_hash`: SHA-256 digest of the canonically serialized `VerificationItem` JSON object (recursively sorted keys).
+- `prev_hash`: Links to the prior anchor event's `payload_hash` in the same case (`null` for the first anchor in a case), creating a tamper-evident hash chain.
+- `signed_by`: Identity of the verification officer or system signer (defaults to `"Demo Verification Officer"`).
+- `signed_at`: ISO 8601 UTC timestamp.
+- **Append-only invariant**: Prohibits all `UPDATE` and `DELETE` operations via database-level triggers in SQLite (`SELECT RAISE(ABORT, 'anchor_events is append-only')`) and Supabase Postgres (`CREATE TRIGGER ... EXECUTE FUNCTION raise_anchor_events_append_only()`).
 
 ## Derived read-model state
 

@@ -98,9 +98,48 @@ Do not describe the fixture as official or click Import unless demonstrating the
 
 > Bhoomi Setu turns fragmented synthetic land evidence into a traceable, deterministic comparison and practical preparation guidance. In this hero case, a 1.20-acre historical record differs from the 1.02-acre survey/Parcha and 1.0243-acre mapped synthetic geometry, while survey and geometry closely align. The system flags a potential issue for review—not a legal conclusion—and guides the citizen to prepare the next step without submitting anything.
 
+## Trust Layer & Integrity Verification Demo (Demoware Walkthrough)
+
+### Narrative & Purpose
+The Trust Layer demonstrates cryptographic tamper-evidence without claiming to be a distributed ledger or government authority. It uses an append-only, hash-chained log (`anchor_events`) and a public verification page (`/verify/[anchorId]`).
+
+### Walkthrough Steps:
+
+1. **Anchor a Verification Result**:
+   - Navigate to `http://localhost:3000/cases/demo-family-001/verification`.
+   - On the "Area values are consistent" or "Potential area mismatch" card, click **"Anchor this result"**.
+   - The card displays `⚓ Anchored`, the anchor ID (e.g., `anc_a1b2c3d4e5f60718`), and a link: `Verify integrity (Public page) ↗`.
+
+2. **Inspect Public Verification (MATCH State)**:
+   - Click the verification link or open `http://localhost:3000/verify/<anchorId>` in an incognito/unauthenticated window.
+   - Note the absence of authenticated case navigation or maps—this is an unauthenticated, zero-PII public verifier.
+   - Show the green banner: **INTEGRITY VERIFIED: MATCH**.
+   - Show the side-by-side SHA-256 hashes: the Stored Anchor Hash and Current Recomputed Hash match identically.
+   - Point to the mandatory disclaimer:
+     > *"This proves the record has not changed since signing. It does not prove ownership and is not a government record."*
+
+3. **Demonstrate Tamper Detection (MISMATCH State)**:
+   - In your terminal, simulate an unauthorized direct mutation of live storage outside application write paths:
+     ```bash
+     npm run demo:tamper
+     ```
+   - Refresh `http://localhost:3000/verify/<anchorId>`.
+   - Observe the immediate red banner: **INTEGRITY ALERT: MISMATCH**.
+   - Point out that the recomputed hash from live storage now diverges from the immutable anchor hash.
+   - Explain: *"The append-only anchor log makes any subsequent tampering immediately detectable to the public or any third party."*
+
+4. **Restore Database State**:
+   - Restore the original clean record:
+     ```bash
+     npm run demo:tamper -- --restore
+     ```
+   - Refresh `http://localhost:3000/verify/<anchorId>` to confirm the green **MATCH** status returns.
+
 ## Presenter guardrails
 
 - Say **synthetic official-style record**, never “live official record.”
 - Say **potential difference** or **needs review**, never “wrong record” or “verified owner.”
 - Say **contextual imagery**, never “satellite proof” or “encroachment detection.”
 - Say **local MOCK review packet**, never “claim submitted.”
+- Say **hash-chained integrity audit log**, never “blockchain” or “government certificate of title.”
+

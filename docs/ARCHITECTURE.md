@@ -101,3 +101,42 @@ Future, not implemented: authentication/session tenancy, object storage, queues/
 # Parcel area comparison boundary
 
 `ParcelIntelligenceService` derives a typed three-source area model from existing synthetic documents, survey text, and persisted geometry. `ParcelAreaComparisonService` normalizes supported units, applies the symmetric demo policy, and returns pairwise comparisons plus a deterministic summary. No comparison state is persisted and no UI component decides a status. This path is AI-independent and intentionally separate from deterministic verification rules.
+
+## Trust Layer & Cryptographic Anchoring
+
+```mermaid
+flowchart LR
+  VR[VerificationItem in verification_results] --> AS[AnchorService]
+  AS --> CANON[Canonical JSON serialization]
+  CANON --> SHA[SHA-256 hash]
+  AS --> CHAIN[Link to prev_hash in case]
+  CHAIN --> DB[(anchor_events table)]
+  DB --> TRG[Database trigger: block UPDATE/DELETE]
+  PUB[Public Verifier /verify/:anchorId] --> VAPI[GET /api/anchors/:anchorId/verify]
+  VAPI --> RECOMP[Recompute hash from live storage]
+  RECOMP --> COMP[Compare storedHash vs recomputedHash]
+  COMP --> OUT[MATCH or MISMATCH without PII]
+```
+
+The Trust Layer demonstrates cryptographic tamper-evidence without claiming to be a distributed ledger, blockchain, or government service:
+
+1. **Append-Only Integrity Log (`anchor_events`)**:
+   - Stores signed verification result hashes chained via `prev_hash`.
+   - Enforced by database triggers in both SQLite and Supabase Postgres: any `UPDATE` or `DELETE` statement is rejected with an exception (`anchor_events is append-only`).
+   - No application or administrative delete path exists for `anchor_events`.
+
+2. **Deterministic Canonical Hashing**:
+   - `canonicalSerialize` recursively sorts object keys lexicographically before generating JSON, ensuring deterministic hashing invariant to JSON key insertion order.
+   - Computes SHA-256 digests using Node's standard `crypto` module.
+
+3. **Zero-PII Public Verifier**:
+   - Route: `/verify/[anchorId]` backed by `GET /api/anchors/:anchorId/verify`.
+   - Accessible without authentication or case access credentials.
+   - Recomputes the SHA-256 hash directly from live storage and compares it to the immutable anchor hash.
+   - Returns strictly `matches`, `storedHash`, `recomputedHash`, `signedBy`, `signedAt`, and `caseReference`. Exposes zero personal names, Aadhaar numbers, notes, or document bodies.
+
+4. **Tamper Detection Demonstration**:
+   - Standalone CLI demoware (`scripts/demo-tamper.ts`) mutates live database storage outside application code.
+   - Visiting `/verify/[anchorId]` immediately displays the red `INTEGRITY ALERT: MISMATCH` status banner, proving cryptographic tamper-evidence.
+   - Restoring the record returns the green `INTEGRITY VERIFIED: MATCH` status.
+

@@ -19,6 +19,9 @@ All implemented routes are local Next.js route handlers in the enforced `synthet
 | `POST` | `/api/cases/:caseId/review-packets` | Creates or reuses a packet only for a persisted `POTENTIAL_ISSUE`. Creation is idempotent per `(caseId, verificationResultId)`. Invalid input is `400`; ineligible/cross-case results are `422`. |
 | `GET` | `/api/cases/:caseId/review-packets/:packetId` | Retrieves a packet only inside its selected case; cross-case access is `404`. |
 | `PATCH` | `/api/cases/:caseId/review-packets/:packetId` | Updates a `DRAFT` packet’s citizen notes/request or marks it ready. `READY_FOR_REVIEW` packets are frozen: content changes return `409 PACKET_LOCKED`; a repeated ready request is a safe no-op. |
+| `GET` | `/api/cases/:caseId/anchors` | Lists all immutable anchor events for the specified case in chronological order. |
+| `POST` | `/api/cases/:caseId/anchors` | Creates an anchor event for a verification result `{ resultId, signedBy? }`. Idempotent: returns existing anchor if already anchored. |
+| `GET` | `/api/anchors/:anchorId/verify` | **Public, unauthenticated verifier**. Recomputes hash from live storage and compares against stored anchor. Returns `{ matches, recomputedHash, storedHash, signedBy, signedAt, caseReference }`. Exposes zero PII. 404 if not found. |
 | `POST` | `/api/demo/reset` | Resets exactly one approved seed case (`demo-family-001` or `demo-family-002`) to deterministic synthetic state. It rejects arbitrary case IDs and does not affect newly created cases. |
 | `GET` | `/api/health` | Returns only safe synthetic-demo database availability status. |
 
@@ -131,3 +134,51 @@ Returns read-only deterministic synthetic contextual imagery for a known case. T
 # Parcel intelligence comparison fields
 
 `GET /api/cases/:caseId/parcel-intelligence` retains `parcel`, `geometry`, `calculatedArea`, and `recordedAreas`, and also returns `areaSources`, `pairwiseComparisons`, `comparisonSummary`, and `comparisonPolicy`. Each source carries raw and normalized values plus source traceability. Pairwise results use the `BHOOMI_SETU_DEMO_AREA_V1` demo-only policy and do not change verification results.
+
+## Trust Layer / Anchor API Routes
+
+### **GET /api/cases/:caseId/anchors**
+Returns all anchor events created for the specified case in ascending chronological order:
+```json
+{
+  "data": [
+    {
+      "id": "anc_12345678abcdef01",
+      "case_id": "demo-family-001",
+      "subject_type": "verification_result",
+      "subject_id": "demo-family-001-area-consistency",
+      "payload_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "prev_hash": null,
+      "signed_by": "Demo Verification Officer",
+      "signed_at": "2026-09-08T20:00:00.000Z"
+    }
+  ]
+}
+```
+
+### **POST /api/cases/:caseId/anchors**
+Anchors a verification result.
+- Request Body: `{ "resultId": string, "signedBy"?: string }`
+- Idempotent: If an anchor already exists for `(caseId, "verification_result", resultId)`, returns the existing anchor with HTTP 201/200.
+- If `resultId` does not exist in the case's verification results, returns HTTP 404.
+
+### **GET /api/anchors/:anchorId/verify**
+**Public, unauthenticated verification endpoint**. Anyone with an `anchorId` can independently verify that the live record has not been altered since it was signed.
+- No authentication or session required.
+- Does not require or reveal the case ID or any personal data.
+- Response payload:
+```json
+{
+  "data": {
+    "matches": true,
+    "recomputedHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "storedHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "signedBy": "Demo Verification Officer",
+    "signedAt": "2026-09-08T20:00:00.000Z",
+    "caseReference": "Case demo-family-001"
+  }
+}
+```
+- Returns HTTP 404 if the `anchorId` does not exist in `anchor_events`.
+- Returns `matches: false` if live data was modified or deleted since signing. Exposes zero PII (no names, Aadhaar, notes, or full documents).
+

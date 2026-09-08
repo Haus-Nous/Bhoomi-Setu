@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "eval": "vitest run src/evaluation/evaluation-runner.test.ts --reporter=verbose"
+    "eval": "vitest run src/evaluation/evaluation-runner.test.ts --reporter=verbose",
+    "demo:tamper": "node --experimental-strip-types scripts/demo-tamper.ts"
   },
   "dependencies": {
     "@google/genai": "^2.19.0",
