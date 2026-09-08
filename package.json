@@ -1,0 +1,16 @@
+{
+  "name": "bhoomi-setu-workspace",
+  "private": true,
+  "packageManager": "pnpm@10.15.1",
+  "scripts": {
+    "build": "pnpm --recursive --if-present run build",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "test": "pnpm --recursive --if-present run test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.4",
+    "typescript": "5.9.2"
+  }
+}
