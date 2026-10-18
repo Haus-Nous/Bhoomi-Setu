@@ -11,10 +11,18 @@ export default function Home() {
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
+    document.body.classList.add("on-home");
+    const reduce =
+      typeof window !== "undefined" &&
+      !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     const timer = setTimeout(() => {
       setRevealed(true);
-    }, 400);
-    return () => clearTimeout(timer);
+    }, reduce ? 0 : 1700);
+
+    return () => {
+      document.body.classList.remove("on-home");
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
@@ -73,25 +81,41 @@ export default function Home() {
           </p>
         </div>
 
-        <Link className="tile c3" href="/cases/demo-family-001" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link
+          className="tile c3"
+          href="/cases/demo-family-001"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
           <div className="step-n">1</div>
           <h3 style={{ marginTop: 14, fontWeight: 400 }}>{r.s1_h}</h3>
           <p className="t-sub">{r.s1_p}</p>
         </Link>
 
-        <Link className="tile c3" href="/cases/demo-family-001/documents" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link
+          className="tile c3"
+          href="/cases/demo-family-001/documents"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
           <div className="step-n">2</div>
           <h3 style={{ marginTop: 14, fontWeight: 400 }}>{r.s2_h}</h3>
           <p className="t-sub">{r.s2_p}</p>
         </Link>
 
-        <Link className="tile c3" href="/cases/demo-family-001#differences" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link
+          className="tile c3"
+          href="/cases/demo-family-001#differences"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
           <div className="step-n">3</div>
           <h3 style={{ marginTop: 14, fontWeight: 400 }}>{r.s3_h}</h3>
           <p className="t-sub">{r.s3_p}</p>
         </Link>
 
-        <Link className="tile c3" href="/cases/demo-family-001/next-action" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link
+          className="tile c3"
+          href="/cases/demo-family-001/next-action"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
           <div className="step-n">4</div>
           <h3 style={{ marginTop: 14, fontWeight: 400 }}>{r.s4_h}</h3>
           <p className="t-sub">{r.s4_p}</p>

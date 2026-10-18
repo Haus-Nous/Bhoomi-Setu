@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslation } from "@/components/locale-context";
 import { redesignI18n } from "@/lib/i18n";
-import { PaintedScene } from "@/components/painted-scene";
+import { VillageBackground } from "@/components/village-background";
 import React from "react";
 
 const defaultCaseId = "demo-family-001";
@@ -268,7 +268,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <PaintedScene mode="background" />
+      <VillageBackground />
       <div className="app">
         <div className="hero-fade" aria-hidden="true" />
         <RailNavigation />

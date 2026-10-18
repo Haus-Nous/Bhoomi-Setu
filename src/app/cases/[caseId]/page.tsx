@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { CasePage } from "@/components/case-page";
 import { useLocale } from "@/components/locale-context";
 import { redesignI18n } from "@/lib/i18n";
-import { PaintedScene } from "@/components/painted-scene";
-import { FoldedEvidenceMap } from "@/components/folded-evidence-map";
+import { CaseMapTile } from "@/components/case-map-tile";
+import { FoldedSurveyMap } from "@/components/folded-survey-map";
 import { useRouter } from "next/navigation";
 import type { CaseDetail } from "@/types/case";
 
@@ -32,14 +32,19 @@ function CaseDashboardContent({
       return {};
     }
   });
-  const [openDiffs, setOpenDiffs] = useState<Record<string, boolean>>({ area: false, name: false });
+
+  const [openDiffs, setOpenDiffs] = useState<Record<string, boolean>>({
+    area: false,
+    name: false,
+  });
+
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const triggerToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => {
       setToastMsg((cur) => (cur === msg ? null : cur));
-    }, 2500);
+    }, 2200);
   };
 
   const toggleReview = (id: string) => {
@@ -58,6 +63,10 @@ function CaseDashboardContent({
         ? "चिह्न हटाया"
         : "Marked as not reviewed"
     );
+  };
+
+  const toggleDiffOpen = (id: "area" | "name") => {
+    setOpenDiffs((cur) => ({ ...cur, [id]: !cur[id] }));
   };
 
   const handleReset = async () => {
@@ -79,10 +88,40 @@ function CaseDashboardContent({
     }
   };
 
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
   const parcel = detail.landParcels[0];
   const totalReviewed = (reviewed.area ? 1 : 0) + (reviewed.name ? 1 : 0);
-  const stepCount = 3 + (totalReviewed === 2 ? 1 : 0);
+  const stepCount = totalReviewed === 2 ? 4 : 3;
   const diffsLeft = 2 - totalReviewed;
+
+  const T = {
+    en: {
+      area: ["Area difference", "Historical vs survey"],
+      name: ["Holder name", "Khatiyan vs Jamabandi"],
+      todo: "To review",
+      ok: "Reviewed",
+      undo: "Mark as not reviewed",
+    },
+    hi: {
+      area: ["रकबे का अंतर", "पुराना बनाम सर्वे"],
+      name: ["रैयत का नाम", "खतियान बनाम जमाबंदी"],
+      todo: "देखना है",
+      ok: "देख लिया",
+      undo: "फिर से देखना है",
+    },
+  }[isHi ? "hi" : "en"];
+
+  const stepNoteText = isHi
+    ? diffsLeft
+      ? `${diffsLeft} अंतर देखने बाकी`
+      : "अब अगला कदम चुनें"
+    : diffsLeft
+    ? `${diffsLeft} ${diffsLeft > 1 ? "differences" : "difference"} left to review`
+    : "Ready to choose a next step";
 
   return (
     <section id="v-case" className="view on">
@@ -92,21 +131,29 @@ function CaseDashboardContent({
       </div>
 
       <div className="grid" id="overview">
-        <div className="tile c5 plain" style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-          <h1 className="display-h1" style={{ fontSize: "clamp(32px, 4.4vw, 54px)" }}>
-            {detail.case.nickname || "Demo Case 001"}
-          </h1>
+        {/* Case Title and Location */}
+        <div
+          className="tile c5 plain"
+          style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
+        >
+          <h1>{detail.case.nickname || "Demo Case 001"}</h1>
           <p className="t-sub" style={{ margin: "10px 0 0", fontSize: 13 }}>
-            {detail.case.location.village || "Example Mauza A"} &nbsp;&nbsp; Khata {parcel?.khata || "DEMO-128"} &nbsp;&nbsp; Khesra {parcel?.khesra || "DEMO-456"}
+            {detail.case.location.village || "Example Mauza A"} &nbsp;&nbsp; Khata{" "}
+            {parcel?.khata || "DEMO-128"} &nbsp;&nbsp; Khesra {parcel?.khesra || "DEMO-456"}
           </p>
         </div>
 
-        {/* Area gap tile */}
+        {/* Area Gap Bar */}
         <div className="tile c3">
           <div className="t-h" style={{ justifyContent: "space-between" }}>
             <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="2" />
+                <path
+                  d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
               </svg>
               <span>{r.ac_h}</span>
             </span>
@@ -127,7 +174,7 @@ function CaseDashboardContent({
           </div>
         </div>
 
-        {/* Document flag: Khatiyan */}
+        {/* Khatiyan Thumb */}
         <div className="tile c2" style={{ padding: 12 }}>
           <div className="t-h" style={{ fontSize: 13 }}>
             Khatiyan
@@ -139,7 +186,7 @@ function CaseDashboardContent({
           </div>
         </div>
 
-        {/* Document flag: Jamabandi */}
+        {/* Jamabandi Thumb */}
         <div className="tile c2" style={{ padding: 12 }}>
           <div className="t-h" style={{ fontSize: 13 }}>
             Jamabandi
@@ -151,10 +198,26 @@ function CaseDashboardContent({
           </div>
         </div>
 
-        {/* Secondary metric column */}
-        <div className="c5" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, alignContent: "start" }}>
-          {/* Case progress */}
-          <div className="tile" style={{ gridColumn: "span 2", display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 12 }}>
+        {/* Left Side: Progress, Gauges, Field Match */}
+        <div
+          className="c5"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: 10,
+            alignContent: "start",
+          }}
+        >
+          {/* Progress and Tasks */}
+          <div
+            className="tile"
+            style={{
+              gridColumn: "span 2",
+              display: "grid",
+              gridTemplateColumns: "1fr 1.5fr",
+              gap: 12,
+            }}
+          >
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
               <div className="t-h">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -168,13 +231,7 @@ function CaseDashboardContent({
                   <span style={{ fontSize: 18, color: "var(--ink-3)" }}>/5</span>
                 </div>
                 <div className="t-sub" id="stepNote">
-                  {isHi
-                    ? diffsLeft
-                      ? `${diffsLeft} अंतर देखने बाकी`
-                      : "अब अगला कदम चुनें"
-                    : diffsLeft
-                    ? `${diffsLeft} difference${diffsLeft > 1 ? "s" : ""} left to review`
-                    : "Ready to choose a next step"}
+                  {stepNoteText}
                 </div>
               </div>
             </div>
@@ -184,41 +241,40 @@ function CaseDashboardContent({
                 type="button"
                 className="task"
                 onClick={() => {
-                  setOpenDiffs((o) => ({ ...o, area: true }));
-                  const el = document.getElementById("differences");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                  scrollToSection("differences");
+                  setOpenDiffs((c) => ({ ...c, area: true }));
                 }}
               >
                 <div className="row">
-                  <h3>{isHi ? "रकबे का अंतर" : "Area difference"}</h3>
+                  <h3>{T.area[0]}</h3>
                   <span className={`pill ${reviewed.area ? "done" : ""}`}>
-                    {reviewed.area ? r.ok : r.todo}
+                    {reviewed.area ? T.ok : T.todo}
                   </span>
                 </div>
-                <p>{isHi ? "पुराना बनाम सर्वे" : "Historical vs survey"}</p>
+                <p>{T.area[1]}</p>
               </button>
 
               <button
                 type="button"
                 className="task"
+                style={{ marginTop: 8 }}
                 onClick={() => {
-                  setOpenDiffs((o) => ({ ...o, name: true }));
-                  const el = document.getElementById("differences");
-                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                  scrollToSection("differences");
+                  setOpenDiffs((c) => ({ ...c, name: true }));
                 }}
               >
                 <div className="row">
-                  <h3>{isHi ? "रैयत का नाम" : "Holder name"}</h3>
+                  <h3>{T.name[0]}</h3>
                   <span className={`pill ${reviewed.name ? "done" : ""}`}>
-                    {reviewed.name ? r.ok : r.todo}
+                    {reviewed.name ? T.ok : T.todo}
                   </span>
                 </div>
-                <p>{isHi ? "खतियान बनाम जमाबंदी" : "Khatiyan vs Jamabandi"}</p>
+                <p>{T.name[1]}</p>
               </button>
             </div>
           </div>
 
-          {/* Holders gauge */}
+          {/* Holders Gauge */}
           <div className="tile">
             <div className="t-h">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -227,7 +283,11 @@ function CaseDashboardContent({
               </svg>
               <span>{r.hold_h}</span>
             </div>
-            <svg className="gauge" viewBox="0 0 200 120" aria-label="1 holder recorded">
+            <svg
+              className="gauge"
+              viewBox="0 0 200 120"
+              aria-label="1 holder recorded, names match in 1 of 2 records"
+            >
               <defs>
                 <linearGradient id="g1" x1="0" x2="1">
                   <stop offset="0" stopColor="#7DC242" />
@@ -236,8 +296,22 @@ function CaseDashboardContent({
                   <stop offset="1" stopColor="#E5483B" />
                 </linearGradient>
               </defs>
-              <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#g1)" strokeWidth="8" strokeLinecap="round" />
-              <line x1="100" y1="100" x2="100" y2="22" stroke="var(--ink)" strokeWidth="2.5" />
+              <path
+                d="M20 100 A80 80 0 0 1 180 100"
+                fill="none"
+                stroke="url(#g1)"
+                strokeWidth="8"
+                strokeLinecap="round"
+              />
+              <line
+                x1="100"
+                y1="100"
+                x2="100"
+                y2="22"
+                stroke="var(--ink)"
+                strokeWidth="2.5"
+                transform="rotate(0 100 100)"
+              />
               <text x="100" y="86" textAnchor="middle" fontSize="10" fill="var(--ink-3)">
                 {r.hold_s}
               </text>
@@ -250,7 +324,7 @@ function CaseDashboardContent({
             </div>
           </div>
 
-          {/* Area gauge */}
+          {/* Area Gauge */}
           <div className="tile">
             <div className="t-h" style={{ justifyContent: "space-between" }}>
               <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -278,7 +352,14 @@ function CaseDashboardContent({
               </li>
             </ul>
             <svg className="gauge" viewBox="0 0 200 104" aria-label="Survey area 1.02 acre">
-              <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="url(#g1)" strokeWidth="8" strokeLinecap="round" strokeDasharray="2 3" />
+              <path
+                d="M20 100 A80 80 0 0 1 180 100"
+                fill="none"
+                stroke="url(#g1)"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray="2 3"
+              />
               <text x="100" y="78" textAnchor="middle" fontSize="10" fill="var(--ink-3)">
                 {r.acres}
               </text>
@@ -288,7 +369,7 @@ function CaseDashboardContent({
             </svg>
           </div>
 
-          {/* Field match chart */}
+          {/* Field Match Bars */}
           <div className="tile" style={{ gridColumn: "span 2" }}>
             <div className="t-h" style={{ justifyContent: "space-between" }}>
               <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -299,11 +380,29 @@ function CaseDashboardContent({
               </span>
               <span style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--ink-3)" }}>
                 <span>
-                  <i style={{ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: "var(--lime)", marginRight: 5 }} />
+                  <i
+                    style={{
+                      display: "inline-block",
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "var(--lime)",
+                      marginRight: 5,
+                    }}
+                  />
                   <span>{r.agree}</span>
                 </span>
                 <span>
-                  <i style={{ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: "var(--bad)", marginRight: 5 }} />
+                  <i
+                    style={{
+                      display: "inline-block",
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "var(--bad)",
+                      marginRight: 5,
+                    }}
+                  />
                   <span>{r.differ}</span>
                 </span>
               </span>
@@ -314,7 +413,10 @@ function CaseDashboardContent({
             <div className="t-sub" style={{ textAlign: "center" }}>
               {r.fm_s}
             </div>
-            <div className="chart" aria-label="Area: 2 sources agree, 1 differs. Holder: 1 agrees, 1 differs. Khata: 3 agree. Khesra: 3 agree.">
+            <div
+              className="chart"
+              aria-label="Area: 2 sources agree, 1 differs. Holder: 1 agrees, 1 differs. Khata: 3 agree. Khesra: 3 agree."
+            >
               <div className="col">
                 <span style={{ height: "62%", background: "var(--lime)" }} />
                 <span style={{ height: "31%", background: "var(--bad)" }} />
@@ -341,32 +443,39 @@ function CaseDashboardContent({
           </div>
         </div>
 
-        {/* Interactive Case Map */}
-        <PaintedScene mode="case" caseId={caseId} />
+        {/* Right Side: Map Tile */}
+        <CaseMapTile onGoDiff={() => scrollToSection("differences")} />
       </div>
 
-      {/* Differences Accordion Panel */}
+      {/* Differences Accordion Section */}
       <div id="differences" className="panel" style={{ marginTop: 14 }}>
         <h2>{r.d_h}</h2>
         <p className="t-sub" style={{ margin: "4px 0 0" }}>
           {r.d_sub}
         </p>
 
-        {/* Area difference */}
+        {/* Diff 1: Area */}
         <div className="diff" data-id="area">
           <button
             type="button"
             aria-expanded={openDiffs.area}
-            onClick={() => setOpenDiffs((o) => ({ ...o, area: !o.area }))}
+            onClick={() => toggleDiffOpen("area")}
           >
             <span>
               <h3>{r.d1_h}</h3>
               <p>{r.d1_p}</p>
             </span>
             <span className={`pill ${reviewed.area ? "done" : ""}`}>
-              {reviewed.area ? r.ok : r.todo}
+              {reviewed.area ? T.ok : T.todo}
             </span>
-            <svg className="chev" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <svg
+              className="chev"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              style={{ transform: openDiffs.area ? "rotate(180deg)" : "none" }}
+            >
               <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
           </button>
@@ -384,36 +493,38 @@ function CaseDashboardContent({
               </div>
             </div>
             <p className="disc">{r.disc}</p>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <button
-                type="button"
-                className={`btn2 ${reviewed.area ? "" : "lime"}`}
-                onClick={() => toggleReview("area")}
-              >
-                {reviewed.area ? r.undo : r.mark}
-              </button>
-              <Link className="link" href={`/cases/${caseId}/verification`} style={{ marginTop: 0 }}>
-                {isHi ? "सत्यापन विवरण और एंकर देखें" : "View verification & cryptographic anchor"}
-              </Link>
-            </div>
+            <button
+              type="button"
+              className={`btn2 ${reviewed.area ? "" : "lime"}`}
+              onClick={() => toggleReview("area")}
+            >
+              {reviewed.area ? T.undo : r.mark}
+            </button>
           </div>
         </div>
 
-        {/* Name spelling difference */}
-        <div className="diff" data-id="name">
+        {/* Diff 2: Name */}
+        <div className="diff" data-id="name" style={{ marginTop: 10 }}>
           <button
             type="button"
             aria-expanded={openDiffs.name}
-            onClick={() => setOpenDiffs((o) => ({ ...o, name: !o.name }))}
+            onClick={() => toggleDiffOpen("name")}
           >
             <span>
               <h3>{r.d2_h}</h3>
               <p>{r.d2_p}</p>
             </span>
             <span className={`pill ${reviewed.name ? "done" : ""}`}>
-              {reviewed.name ? r.ok : r.todo}
+              {reviewed.name ? T.ok : T.todo}
             </span>
-            <svg className="chev" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <svg
+              className="chev"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              style={{ transform: openDiffs.name ? "rotate(180deg)" : "none" }}
+            >
               <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
           </button>
@@ -431,33 +542,24 @@ function CaseDashboardContent({
               </div>
             </div>
             <p className="disc">{r.disc2}</p>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <button
-                type="button"
-                className={`btn2 ${reviewed.name ? "" : "lime"}`}
-                onClick={() => toggleReview("name")}
-              >
-                {reviewed.name ? r.undo : r.mark}
-              </button>
-              <Link className="link" href={`/cases/${caseId}/family`} style={{ marginTop: 0 }}>
-                {isHi ? "पारिवारिक वंशावली देखें" : "View family genealogy"}
-              </Link>
-            </div>
+            <button
+              type="button"
+              className={`btn2 ${reviewed.name ? "" : "lime"}`}
+              onClick={() => toggleReview("name")}
+            >
+              {reviewed.name ? T.undo : r.mark}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 3D Folded Evidence Map */}
-      <FoldedEvidenceMap
+      {/* Evidence and Context: Folded Survey Map */}
+      <FoldedSurveyMap
         onToast={triggerToast}
-        onScrollToDifferences={() => {
-          setOpenDiffs((o) => ({ ...o, area: true }));
-          const el = document.getElementById("differences");
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        }}
+        onGoDifferences={() => scrollToSection("differences")}
       />
 
-      {/* Documents Panel */}
+      {/* Seeded Records Panel */}
       <div id="documents" className="panel" style={{ marginTop: 14 }}>
         <h2>{r.doc_h}</h2>
         <p className="t-sub" style={{ margin: "4px 0 10px" }}>
@@ -467,7 +569,12 @@ function CaseDashboardContent({
           <div className="tile c4 doc">
             <span className="ic">
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 3h9l4 4v14H6z M8 11h8 M8 15h8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                <path
+                  d="M6 3h9l4 4v14H6z M8 11h8 M8 15h8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
               </svg>
             </span>
             <span>
@@ -476,7 +583,11 @@ function CaseDashboardContent({
                 <span>{r.extracted}</span>: 6
               </small>
             </span>
-            <Link className="pill done" href={`/cases/${caseId}/documents`} style={{ textDecoration: "none" }}>
+            <Link
+              className="pill done"
+              href={`/cases/${caseId}/documents`}
+              style={{ textDecoration: "none" }}
+            >
               {r.inspect}
             </Link>
           </div>
@@ -484,7 +595,12 @@ function CaseDashboardContent({
           <div className="tile c4 doc">
             <span className="ic">
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 3h9l4 4v14H6z M8 11h8 M8 15h8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                <path
+                  d="M6 3h9l4 4v14H6z M8 11h8 M8 15h8"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
               </svg>
             </span>
             <span>
@@ -493,7 +609,11 @@ function CaseDashboardContent({
                 <span>{r.extracted}</span>: 5
               </small>
             </span>
-            <Link className="pill done" href={`/cases/${caseId}/documents`} style={{ textDecoration: "none" }}>
+            <Link
+              className="pill done"
+              href={`/cases/${caseId}/documents`}
+              style={{ textDecoration: "none" }}
+            >
               {r.inspect}
             </Link>
           </div>
@@ -501,7 +621,12 @@ function CaseDashboardContent({
           <div className="tile c4 doc">
             <span className="ic">
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                <path
+                  d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
               </svg>
             </span>
             <span>
@@ -510,51 +635,76 @@ function CaseDashboardContent({
                 <span>{r.extracted}</span>: 4
               </small>
             </span>
-            <Link className="pill done" href={`/cases/${caseId}/documents`} style={{ textDecoration: "none" }}>
+            <Link
+              className="pill done"
+              href={`/cases/${caseId}/documents`}
+              style={{ textDecoration: "none" }}
+            >
               {r.inspect}
             </Link>
           </div>
         </div>
 
-        {/* Deeper features quick-access shelf */}
-        <div style={{ marginTop: 20, paddingTop: 14, borderTop: "1px solid var(--line)", display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <span className="t-sub" style={{ marginRight: 6 }}>
-            {isHi ? "गहन अन्वेषण:" : "Deep inspection:"}
-          </span>
+        <p style={{ marginTop: 14 }}>
+          <button
+            type="button"
+            className="btn2"
+            id="reset"
+            onClick={handleReset}
+          >
+            {r.reset}
+          </button>
+        </p>
+      </div>
+
+      {/* Case Explorer Subpage Links */}
+      <div className="panel" style={{ marginTop: 14 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 500, marginBottom: 8, color: "var(--ink)" }}>
+          {isHi ? "केस से जुड़े विस्तृत पृष्ठ" : "Detailed Case Explorer"}
+        </h3>
+        <p className="t-sub" style={{ margin: "0 0 10px", fontSize: 12 }}>
+          {isHi
+            ? "प्रोटोटाइप के सभी दस्तावेज़, वंशावली, सत्यापन और उपग्रह अवलोकन यहाँ देखें:"
+            : "Explore deep parcel intelligence, family tree, satellite change detection, and verification:"}
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <Link className="chip" href={`/cases/${caseId}/documents`}>
-            📄 {isHi ? "दस्तावेज़ निष्कर्षण" : "Document Extractor"}
+            📄 {isHi ? "दस्तावेज़" : "Documents"}
+          </Link>
+          <Link className="chip" href={`/cases/${caseId}/verification`}>
+            🛡️ {isHi ? "सत्यापन" : "Verification"}
+          </Link>
+          <Link className="chip" href={`/cases/${caseId}/survey-record`}>
+            📐 {isHi ? "सर्वे रिकॉर्ड" : "Survey Record"}
           </Link>
           <Link className="chip" href={`/cases/${caseId}/parcel-intelligence`}>
-            🗺️ {isHi ? "भू-खंड विश्लेषण" : "Parcel Intelligence"}
+            🗺️ {isHi ? "प्लॉट इंटेलिजेंस" : "Parcel Intelligence"}
           </Link>
           <Link className="chip" href={`/cases/${caseId}/official-records`}>
-            🏛️ {isHi ? "सरकारी रिकॉर्ड खोज" : "Official Records"}
+            🏛️ {isHi ? "आधिकारिक रिकॉर्ड" : "Official Records"}
           </Link>
           <Link className="chip" href={`/cases/${caseId}/earth-observation`}>
             🛰️ {isHi ? "उपग्रह अवलोकन" : "Earth Observation"}
           </Link>
           <Link className="chip" href={`/cases/${caseId}/family`}>
-            👥 {isHi ? "पारिवारिक वंशावली" : "Family Tree"}
+            👥 {isHi ? "वंशावली" : "Family Tree"}
+          </Link>
+          <Link className="chip" href={`/cases/${caseId}/timeline`}>
+            ⏳ {isHi ? "समयरेखा" : "Timeline"}
           </Link>
           <Link className="chip" href={`/cases/${caseId}/next-action`}>
             🧭 {isHi ? "अगला कदम" : "Next Action"}
           </Link>
           <Link className="chip" href={`/cases/${caseId}/review-packet`}>
-            📦 {isHi ? "समीक्षा पैकेट" : "Review Packet"}
+            📦 {isHi ? "रिव्यू पैकेट" : "Review Packet"}
           </Link>
         </div>
-
-        <p style={{ marginTop: 14 }}>
-          <button type="button" className="btn2" id="reset" onClick={handleReset}>
-            {r.reset}
-          </button>
-        </p>
       </div>
     </section>
   );
 }
 
-export default function Dashboard() {
+export default function CaseDashboardPage() {
   return (
     <CasePage>
       {(detail, caseId) => <CaseDashboardContent detail={detail} caseId={caseId} />}
