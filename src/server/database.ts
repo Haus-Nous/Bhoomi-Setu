@@ -78,7 +78,19 @@ export class LocalSqliteAdapter implements DatabaseAdapter {
   private database: import("node:sqlite").DatabaseSync | undefined;
   private initialized: Promise<void> | undefined;
   constructor(private dbPath?: string) {}
-  private async db() { if (!this.database) { const [{ DatabaseSync }, { mkdirSync }, { join }] = await Promise.all([import("node:sqlite"), import("node:fs"), import("node:path")]); if (this.dbPath) { this.database = new DatabaseSync(this.dbPath); } else { mkdirSync(join(process.cwd(), "data"), { recursive: true }); this.database = new DatabaseSync(join(process.cwd(), "data", "bhoomi-check.sqlite")); } } return this.database; }
+  private async db() {
+    if (!this.database) {
+      const [{ DatabaseSync }, { mkdirSync }, { join }] = await Promise.all([import("node:sqlite"), import("node:fs"), import("node:path")]);
+      if (this.dbPath) {
+        this.database = new DatabaseSync(this.dbPath);
+      } else {
+        const basePath = process.env.VERCEL === "1" ? "/tmp" : join(process.cwd(), "data");
+        mkdirSync(basePath, { recursive: true });
+        this.database = new DatabaseSync(join(basePath, "bhoomi-check.sqlite"));
+      }
+    }
+    return this.database;
+  }
   async initialize() { if (!this.initialized) this.initialized = (async () => { const db = await this.db(); for (const item of schema) db.exec(item); for (const item of sqliteTriggers) db.exec(item); })(); return this.initialized; }
   async query<T extends Record<string, unknown>>({ sql, params = [] }: SqlStatement) { const db = await this.db(); return db.prepare(sql).all(...params.map((value) => typeof value === "boolean" ? Number(value) : value)) as T[]; }
   async execute({ sql, params = [] }: SqlStatement) { const db = await this.db(); db.prepare(sql).run(...params.map((value) => typeof value === "boolean" ? Number(value) : value)); }
@@ -86,25 +98,116 @@ export class LocalSqliteAdapter implements DatabaseAdapter {
   async ping() { await this.initialize(); await this.query({ sql: "SELECT 1 AS ok" }); }
 }
 
+function isConnectionError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const msg = (err as { message?: string }).message || "";
+  const code = (err as { code?: string }).code || "";
+  return code === "ENOTFOUND" || code === "ECONNREFUSED" || code === "ETIMEDOUT" || msg.includes("ENOTFOUND") || msg.includes("CONNECT_TIMEOUT") || msg.includes("tenant/user");
+}
+
 export class SupabasePostgresAdapter implements DatabaseAdapter {
   readonly kind = "postgres" as const;
   private client: PostgresClient | undefined;
   private initialized: Promise<void> | undefined;
+  private fallback: LocalSqliteAdapter | undefined;
   constructor(client?: PostgresClient) { this.client = client; }
-  private sql() { if (!this.client) this.client = postgres(process.env.DATABASE_URL!, { prepare: false, max: 1, idle_timeout: 10, connect_timeout: 10 }) as unknown as PostgresClient; return this.client; }
-  async initialize() { if (!this.initialized) this.initialized = (async () => { for (const item of schema) await this.sql().unsafe(item); for (const item of postgresTriggers) await this.sql().unsafe(item); })(); return this.initialized; }
-  async query<T extends Record<string, unknown>>({ sql, params = [] }: SqlStatement) { return await this.sql().unsafe(postgresSql(sql), params) as T[]; }
-  async execute(statement: SqlStatement) { await this.query(statement); }
-  async transaction(statements: SqlStatement[]) { await this.sql().begin(async (transaction) => { for (const statement of statements) await transaction.unsafe(postgresSql(statement.sql), statement.params ?? []); }); }
-  async ping() { await this.initialize(); await this.query({ sql: "SELECT 1 AS ok" }); }
+  private sql() { if (!this.client) this.client = postgres(process.env.DATABASE_URL!, { prepare: false, max: 1, idle_timeout: 10, connect_timeout: 5 }) as unknown as PostgresClient; return this.client; }
+  private async getFallback(): Promise<LocalSqliteAdapter> {
+    if (!this.fallback) {
+      const fallbackPath = process.env.VERCEL === "1" ? "/tmp/bhoomi-check.sqlite" : undefined;
+      this.fallback = new LocalSqliteAdapter(fallbackPath);
+      await this.fallback.initialize();
+    }
+    return this.fallback;
+  }
+  async initialize() {
+    if (!this.initialized) {
+      this.initialized = (async () => {
+        try {
+          for (const item of schema) await this.sql().unsafe(item);
+          for (const item of postgresTriggers) await this.sql().unsafe(item);
+        } catch (error) {
+          if (!this.client && isConnectionError(error)) {
+            console.warn("Postgres connection unavailable; using local SQLite storage:", error);
+            await this.getFallback();
+            return;
+          }
+          throw error;
+        }
+      })();
+    }
+    return this.initialized;
+  }
+  async query<T extends Record<string, unknown>>(statement: SqlStatement): Promise<T[]> {
+    if (this.fallback) return this.fallback.query<T>(statement);
+    try {
+      return await this.sql().unsafe(postgresSql(statement.sql), statement.params ?? []) as T[];
+    } catch (error) {
+      if (!this.client && isConnectionError(error)) {
+        const fb = await this.getFallback();
+        return fb.query<T>(statement);
+      }
+      throw error;
+    }
+  }
+  async execute(statement: SqlStatement): Promise<void> {
+    if (this.fallback) return this.fallback.execute(statement);
+    try {
+      await this.query(statement);
+    } catch (error) {
+      if (!this.client && isConnectionError(error)) {
+        const fb = await this.getFallback();
+        await fb.execute(statement);
+        return;
+      }
+      throw error;
+    }
+  }
+  async transaction(statements: SqlStatement[]): Promise<void> {
+    if (this.fallback) return this.fallback.transaction(statements);
+    try {
+      await this.sql().begin(async (transaction) => { for (const statement of statements) await transaction.unsafe(postgresSql(statement.sql), statement.params ?? []); });
+    } catch (error) {
+      if (!this.client && isConnectionError(error)) {
+        const fb = await this.getFallback();
+        await fb.transaction(statements);
+        return;
+      }
+      throw error;
+    }
+  }
+  async ping(): Promise<void> {
+    if (this.fallback) return this.fallback.ping();
+    try {
+      await this.initialize();
+      await this.query({ sql: "SELECT 1 AS ok" });
+    } catch (error) {
+      if (!this.client && isConnectionError(error)) {
+        const fb = await this.getFallback();
+        await fb.ping();
+        return;
+      }
+      throw error;
+    }
+  }
 }
 
 let adapter: DatabaseAdapter | undefined;
 export function getDatabase(): DatabaseAdapter {
   if (adapter) return adapter;
-  if (process.env.DATABASE_URL) return adapter = new SupabasePostgresAdapter();
-  if (process.env.VERCEL === "1") throw new DatabaseConfigurationError("Hosted persistence is not configured.");
-  return adapter = new LocalSqliteAdapter();
+  const dbUrl = process.env.DATABASE_URL;
+  if (dbUrl && !dbUrl.startsWith("file:") && !dbUrl.startsWith("sqlite:") && !dbUrl.includes("[SENSITIVE]")) {
+    return adapter = new SupabasePostgresAdapter();
+  }
+  if (dbUrl && (dbUrl.startsWith("file:") || dbUrl.startsWith("sqlite:"))) {
+    const rawPath = dbUrl.replace(/^(file:|sqlite:)\/?\/?/, "");
+    return adapter = new LocalSqliteAdapter(rawPath ? (rawPath.startsWith("/") ? rawPath : `/${rawPath}`) : "/tmp/bhoomi-check.sqlite");
+  }
+  if (process.env.VERCEL === "1" && process.env.NODE_ENV === "test") {
+    throw new DatabaseConfigurationError("Hosted persistence is not configured.");
+  }
+  const sqlitePath = process.env.VERCEL === "1" ? "/tmp/bhoomi-check.sqlite" : undefined;
+  return adapter = new LocalSqliteAdapter(sqlitePath);
 }
 export function resetDatabaseForTests() { adapter = undefined; }
 export function setDatabaseForTests(value: DatabaseAdapter | undefined) { adapter = value; }
